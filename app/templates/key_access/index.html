@@ -90,7 +90,7 @@
                                     <td>
                                         {% if structured_data.get('cpu_load') %}
                                             <div class="progress" style="height: 20px;">
-                                                {% set cpu_percent = structured_data.get('cpu_load', '0').replace('%', '') %}
+                                                {% set cpu_percent = (structured_data.get('cpu_load', '0') ~ '').replace('%', '') %}
                                                 <div class="progress-bar" role="progressbar" 
                                                      style="width: {{ cpu_percent }}%"
                                                      aria-valuenow="{{ cpu_percent }}" 
@@ -340,7 +340,7 @@
                                 Есть на устройстве, нет на сервере: {{ missing_on_server|length }}
                             </h6>
                             {% if missing_on_server %}
-                            <div class="alert alert-info">
+                            <div style="background:#e0f7fa; color:#007b8a; padding:8px; border-radius:6px;">
                                 <ul class="list-unstyled mb-0">
                                 {% for ip in missing_on_server %}
                                     <li><code>{{ ip }}</code></li>
@@ -385,11 +385,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
-    
-    // Автообновление страницы каждые 30 секунд
-    setTimeout(function() {
-        location.reload();
-    }, 30000);
 });
 </script>
 

@@ -103,7 +103,7 @@
                                         {{ row.online_status }}
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('devices.key_access', key=row.key) }}" class="btn btn-sm btn-primary">
+                                        <a href="{{ url_for('key_access.key_access', key=row.key) }}" class="btn btn-sm btn-primary">
                                             <i class="fas fa-sign-in-alt fa-fw"></i>
                                             Войти
                                         </a>
