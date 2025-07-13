@@ -285,17 +285,37 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM загружен, инициализация поиска...');
+    
+    // Простой тест - проверим, что JavaScript работает
+    console.log('JavaScript загружен успешно');
+    
     const availableKeys = {{ available_keys | tojson | safe }};
     const userKeys = {{ processed_user_keys | tojson | safe }};
+    
+    console.log('Доступные ключи:', availableKeys.length);
+    console.log('Ключи пользователя:', userKeys.length);
+    
+    // Проверим первые несколько ключей
+    if (availableKeys.length > 0) {
+        console.log('Пример доступного ключа:', availableKeys[0]);
+    }
+    if (userKeys.length > 0) {
+        console.log('Пример ключа пользователя:', userKeys[0]);
+    }
 
     // Функция для фильтрации опций в селектах
     function populateOptions(selectElement, optionsData, filter = "") {
+        console.log('Фильтрация:', filter, 'всего ключей:', optionsData.length);
+        
         const filteredKeys = optionsData.filter(key => 
             key.key.toLowerCase().includes(filter.toLowerCase())
         );
+        
+        console.log('Отфильтровано ключей:', filteredKeys.length);
 
         selectElement.innerHTML = "";
         filteredKeys.forEach(key => {
@@ -311,15 +331,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const addKeySelect = document.getElementById('addKeySelect');
     const detachKeySearch = document.getElementById('detachKeySearch');
     const detachKeySelect = document.getElementById('detachKeySelect');
+    
+    console.log('Элементы найдены:', {
+        addKeySearch: !!addKeySearch,
+        addKeySelect: !!addKeySelect,
+        detachKeySearch: !!detachKeySearch,
+        detachKeySelect: !!detachKeySelect
+    });
 
+    // Автозаполнение при открытии модального окна "Добавить ключ"
+    const addKeyModal = document.getElementById('addKeyModal');
+    if (addKeyModal && addKeySelect) {
+        addKeyModal.addEventListener('show.bs.modal', function () {
+            console.log('Модальное окно "Добавить ключ" открыто');
+            populateOptions(addKeySelect, availableKeys, addKeySearch ? addKeySearch.value : "");
+        });
+    }
+
+    // Автозаполнение при открытии модального окна "Удалить ключ"
+    const detachKeyModal = document.getElementById('detachKeyModal');
+    if (detachKeyModal && detachKeySelect) {
+        detachKeyModal.addEventListener('show.bs.modal', function () {
+            console.log('Модальное окно "Удалить ключ" открыто');
+            populateOptions(detachKeySelect, userKeys, detachKeySearch ? detachKeySearch.value : "");
+        });
+    }
+
+    // Поиск в модальном окне "Добавить ключ"
     if (addKeySearch && addKeySelect) {
         addKeySearch.addEventListener('input', function() {
+            console.log('Поиск в "Добавить ключ":', this.value);
             populateOptions(addKeySelect, availableKeys, this.value);
         });
     }
 
+    // Поиск в модальном окне "Удалить ключ"
     if (detachKeySearch && detachKeySelect) {
         detachKeySearch.addEventListener('input', function() {
+            console.log('Поиск в "Удалить ключ":', this.value);
             populateOptions(detachKeySelect, userKeys, this.value);
         });
     }

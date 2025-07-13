@@ -255,6 +255,44 @@ def manage_keys(user_id):
     """Управление ключами пользователя"""
     user = User.query.get_or_404(user_id)
     
+    # Получение всех ключей из вторичной базы данных (перемещаем в начало)
+    try:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info("Подключение к базе данных /root/miner-data/file.db")
+        
+        conn = sqlite3.connect('/root/miner-data/file.db', timeout=30.0)
+        cursor = conn.cursor()
+        
+        logger.info("Выполнение запроса к таблице user_keys")
+        cursor.execute("""
+            SELECT key, status, start_date, end_date, tariff_id 
+            FROM user_keys
+        """)
+        
+        rows = cursor.fetchall()
+        logger.info(f"Получено {len(rows)} записей из таблицы user_keys")
+        
+        all_keys = [
+            {
+                'key': row[0],
+                'status': row[1],
+                'start_date': row[2],
+                'end_date': row[3],
+                'tariff_id': row[4],
+            }
+            for row in rows
+        ]
+        conn.close()
+        logger.info("Соединение с базой данных закрыто")
+        
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Ошибка при получении ключей: {str(e)}", exc_info=True)
+        all_keys = []
+        flash(f'Ошибка при получении ключей: {str(e)}', 'error')
+    
     if request.method == 'POST':
         action = request.form.get('action')
         
@@ -272,11 +310,21 @@ def manage_keys(user_id):
                         flash(f'Ключ {key_value} уже привязан к другому пользователю', 'error')
                         continue
                     
-                    # Создаем новый ключ
+                    # Находим оригинальный ключ в базе данных для получения статуса
+                    original_key_data = None
+                    for key_data in all_keys:
+                        if key_data['key'] == key_value:
+                            original_key_data = key_data
+                            break
+                    
+                    # Создаем новый ключ с оригинальным статусом
                     user_key = UserKey(
                         user_id=user_id,
                         key=key_value,
-                        status='available'
+                        status=original_key_data['status'] if original_key_data else 'available',
+                        start_date=original_key_data['start_date'] if original_key_data else None,
+                        end_date=original_key_data['end_date'] if original_key_data else None,
+                        tariff_id=original_key_data['tariff_id'] if original_key_data else None
                     )
                     db.session.add(user_key)
                 
@@ -308,10 +356,20 @@ def manage_keys(user_id):
                 if existing_key:
                     flash(f'Ключ {manual_key} уже привязан к другому пользователю', 'error')
                 else:
+                    # Находим оригинальный ключ в базе данных для получения статуса
+                    original_key_data = None
+                    for key_data in all_keys:
+                        if key_data['key'] == manual_key:
+                            original_key_data = key_data
+                            break
+                    
                     user_key = UserKey(
                         user_id=user_id,
                         key=manual_key,
-                        status='available'
+                        status=original_key_data['status'] if original_key_data else 'available',
+                        start_date=original_key_data['start_date'] if original_key_data else None,
+                        end_date=original_key_data['end_date'] if original_key_data else None,
+                        tariff_id=original_key_data['tariff_id'] if original_key_data else None
                     )
                     db.session.add(user_key)
                     db.session.commit()
@@ -345,28 +403,6 @@ def manage_keys(user_id):
                 flash('Не выбрано ни одного ключа для удаления', 'warning')
         
         return redirect(url_for('admin.manage_keys', user_id=user_id))
-    
-    # Получение всех ключей из вторичной базы данных
-    try:
-        conn = sqlite3.connect('instance/users.db')
-        cursor = conn.cursor()
-        all_keys = [
-            {
-                'key': row[0],
-                'status': row[1],
-                'start_date': row[2],
-                'end_date': row[3],
-                'tariff_id': row[4],
-            }
-            for row in cursor.execute("""
-                SELECT key, status, start_date, end_date, tariff_id 
-                FROM user_keys
-            """)
-        ]
-        conn.close()
-    except Exception as e:
-        all_keys = []
-        flash(f'Ошибка при получении ключей: {str(e)}', 'error')
     
     # Получение ключей, которые уже привязаны к пользователям
     assigned_keys = UserKey.query.with_entities(UserKey.key).all()
