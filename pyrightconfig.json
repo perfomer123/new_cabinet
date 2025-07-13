@@ -1,0 +1,32 @@
+{
+  "include": [
+    "app",
+    "cabinet.py"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "venv",
+    "Рабочие копии"
+  ],
+  "ignore": [
+    "**/node_modules",
+    "**/__pycache__"
+  ],
+  "reportMissingImports": false,
+  "reportMissingTypeStubs": false,
+  "reportUnusedImport": false,
+  "reportUnusedClass": false,
+  "reportUnusedFunction": false,
+  "reportUnusedVariable": false,
+  "pythonVersion": "3.8",
+  "pythonPlatform": "Linux",
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "pythonVersion": "3.8",
+      "pythonPlatform": "Linux"
+    }
+  ]
+} 

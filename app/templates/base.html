@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SOVA MONITORING{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .min-vh-100 {
+            min-height: 100vh;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .card {
+            border-radius: 15px;
+        }
+        .btn {
+            border-radius: 10px;
+        }
+        .form-control {
+            border-radius: 8px;
+        }
+        .alert {
+            border-radius: 10px;
+        }
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">Cabinet</a>
+            
+            <!-- Обычное меню -->
+            <div class="navbar-nav me-auto">
+                {% if g.user %}
+                    {% if request.cookies.get('impersonating') %}
+                        <span class="navbar-text me-3 text-warning">
+                            <i class="fas fa-user-secret me-1"></i>
+                            Режим имперсонации: {{ request.cookies.get('impersonated_username') }} (партнёр)
+                        </span>
+                    {% else %}
+                        <span class="navbar-text me-3">
+                            <i class="fas fa-user me-1"></i>
+                            {{ g.user.username }} ({{ g.user.role }})
+                        </span>
+                    {% endif %}
+                    {% if g.user.role == 'admin' %}
+                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Панель админа</a>
+                        <a class="nav-link" href="{{ url_for('admin.list_users') }}">Пользователи</a>
+                        <a class="nav-link" href="{{ url_for('keys_management.keys_management_view') }}">Управление ключами</a>
+                        <a class="nav-link" href="{{ url_for('scheduler.index') }}">
+                            <i class="fas fa-clock me-1"></i>Автозадания
+                        </a>
+                    {% elif g.user.role == 'partner' %}
+                        <a class="nav-link" href="{{ url_for('partner.dashboard') }}">Моя панель</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="navbar-nav">
+                {% if g.user %}
+                    {% if request.cookies.get('impersonating') %}
+                        <a class="nav-link btn btn-outline-warning btn-sm" href="{{ url_for('admin.stop_impersonation') }}">
+                            <i class="fas fa-sign-out-alt"></i> Вернуться к админу
+                        </a>
+                    {% else %}
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}">Выйти</a>
+                    {% endif %}
+                    {% else %}
+                    <a class="nav-link" href="{{ url_for('auth.login') }}">Войти</a>
+                    {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-shield-alt me-2"></i>SOVA MONITORING</h5>
+                    <p class="mb-0">Система управления майнинг-устройствами</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        <i class="fas fa-phone me-2"></i>+7 (999) 123-45-67<br>
+                        <i class="fas fa-envelope me-2"></i>support@sovamonitoring.com
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="text-center">
+                <small>&copy; 2025 SOVA MONITORING. Все права защищены.</small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Общие утилиты для всего приложения
+        const AppUtils = {
+            // Показать/скрыть загрузку
+            showLoading(message = 'Загрузка...') {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    const messageEl = overlay.querySelector('.loading-message');
+                    if (messageEl) messageEl.textContent = message;
+                    overlay.style.display = 'flex';
+                }
+            },
+            
+            hideLoading() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+            },
+            
+            // Показать уведомление
+            showNotification(message, type = 'info', duration = 5000) {
+                const alertHtml = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                
+                // Вставляем в начало body или в контейнер
+                const container = document.querySelector('.container-fluid') || document.querySelector('.container') || document.body;
+                container.insertAdjacentHTML('afterbegin', alertHtml);
+                
+                // Автоматически скрываем
+                setTimeout(() => {
+                    const alert = container.querySelector('.alert');
+                    if (alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, duration);
+            },
+            
+            // AJAX запрос с обработкой ошибок
+            async fetchData(url, options = {}) {
+                try {
+                    this.showLoading();
+                    const response = await fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            ...options.headers
+                        },
+                        ...options
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    this.showNotification(error.message, 'danger');
+                    throw error;
+                } finally {
+                    this.hideLoading();
+                }
+            },
+            
+            // Форматирование дат
+            formatDate(date, format = 'YYYY-MM-DD') {
+                const d = new Date(date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                
+                return format
+                    .replace('YYYY', year)
+                    .replace('MM', month)
+                    .replace('DD', day);
+            },
+            
+            // Получение диапазона дат
+            getDateRange(range) {
+                const today = new Date();
+                let startDate, endDate;
+                
+                switch(range) {
+                    case 'today': 
+                        startDate = endDate = today; 
+                        break;
+                    case 'yesterday': 
+                        startDate = endDate = new Date(today.getTime() - 24 * 60 * 60 * 1000); 
+                        break;
+                    case 'week': 
+                        startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000); 
+                        endDate = today; 
+                        break;
+                    case 'month': 
+                        startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000); 
+                        endDate = today; 
+                        break;
+                    case 'quarter': 
+                        startDate = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000); 
+                        endDate = today; 
+                        break;
+                    default:
+                        startDate = endDate = today;
+                }
+                
+                return {
+                    start: this.formatDate(startDate),
+                    end: this.formatDate(endDate)
+                };
+            },
+            
+            // Валидация формы
+            validateForm(formId) {
+                const form = document.getElementById(formId);
+                if (!form) return false;
+                
+                const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+                let isValid = true;
+                
+                inputs.forEach(input => {
+                    if (!input.value.trim()) {
+                        input.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        input.classList.remove('is-invalid');
+                    }
+                });
+                
+                return isValid;
+            },
+            
+            // Сброс формы
+            resetForm(formId) {
+                const form = document.getElementById(formId);
+                if (form) {
+                    form.reset();
+                    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                }
+            }
+        };
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Создание тарифа - SOVA MONITORING{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>Создание нового тарифа
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Название тарифа</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="base_price" class="form-label">Базовая цена (₽)</label>
+                                    <input type="number" step="0.01" class="form-control" id="base_price" name="base_price" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="partner_initial_payment" class="form-label">Начальный платеж партнера (₽)</label>
+                                    <input type="number" step="0.01" class="form-control" id="partner_initial_payment" name="partner_initial_payment" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="manager_initial_payment" class="form-label">Начальный платеж менеджера (₽)</label>
+                                    <input type="number" step="0.01" class="form-control" id="manager_initial_payment" name="manager_initial_payment" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="supervisor_initial_payment" class="form-label">Начальный платеж супервайзера (₽)</label>
+                                    <input type="number" step="0.01" class="form-control" id="supervisor_initial_payment" name="supervisor_initial_payment" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="partner_subscription_percentage" class="form-label">Процент подписки партнера (%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="partner_subscription_percentage" name="partner_subscription_percentage" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="manager_subscription_percentage" class="form-label">Процент подписки менеджера (%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="manager_subscription_percentage" name="manager_subscription_percentage" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="supervisor_subscription_percentage" class="form-label">Процент подписки супервайзера (%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="supervisor_subscription_percentage" name="supervisor_subscription_percentage" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Создать тариф
+                                </button>
+                                <a href="{{ url_for('admin.tariffs') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Назад к списку
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

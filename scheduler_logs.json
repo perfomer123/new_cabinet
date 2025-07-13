@@ -1,0 +1,560 @@
+[
+  {
+    "timestamp": "2025-07-13 14:00:04",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:00:04",
+    "job_id": "update_key_status",
+    "message": "Запуск обновления статуса ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:00:04",
+    "job_id": "update_key_status",
+    "message": "Обновление статуса ключей завершено. Обновлено ключей: 0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:00:04",
+    "job_id": "update_key_status",
+    "message": "Автозадание выполнено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:03:03",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено с интервалом 60 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:03:32",
+    "job_id": "update_key_status",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:03:42",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:04:42",
+    "job_id": "sync_keys",
+    "message": "Запуск синхронизации ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:04:42",
+    "job_id": "sync_keys",
+    "message": "Ошибка при синхронизации ключей: Working outside of application context.\n\nThis typically means that you attempted to use functionality that needed\nthe current application. To solve this, set up an application context\nwith app.app_context(). See the documentation for more information.",
+    "level": "error"
+  },
+  {
+    "timestamp": "2025-07-13 14:05:42",
+    "job_id": "sync_keys",
+    "message": "Запуск синхронизации ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:05:42",
+    "job_id": "sync_keys",
+    "message": "Ошибка при синхронизации ключей: Working outside of application context.\n\nThis typically means that you attempted to use functionality that needed\nthe current application. To solve this, set up an application context\nwith app.app_context(). See the documentation for more information.",
+    "level": "error"
+  },
+  {
+    "timestamp": "2025-07-13 14:07:42",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 14:07:45",
+    "job_id": "sync_keys",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:16:33",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено с интервалом 60 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:16:56",
+    "job_id": "update_key_status",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:20:01",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:20:01",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Запуск расчета метрик и отправки отчета",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:20:02",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Ежедневный отчет отправлен на 1 номер(ов). Активаций: 2, продлений: 2, сумма: 0.0 руб.",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:20:02",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание выполнено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:25:36",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:26:59",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:26:59",
+    "job_id": "sync_keys",
+    "message": "Запуск синхронизации ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:27:03",
+    "job_id": "sync_keys",
+    "message": "Синхронизация ключей завершена. Синхронизировано ключей: 668",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:27:03",
+    "job_id": "sync_keys",
+    "message": "Автозадание выполнено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:27:43",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:27:43",
+    "job_id": "sync_keys",
+    "message": "Запуск синхронизации ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:27:48",
+    "job_id": "sync_keys",
+    "message": "Синхронизация ключей завершена. Синхронизировано ключей: 668",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:27:48",
+    "job_id": "sync_keys",
+    "message": "Автозадание выполнено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:27:59",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:28:47",
+    "job_id": "sync_keys",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:28:50",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:28:50",
+    "job_id": "update_key_status",
+    "message": "Запуск обновления статуса ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:28:50",
+    "job_id": "update_key_status",
+    "message": "Обновление статуса ключей завершено. Обновлено ключей: 0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:28:50",
+    "job_id": "update_key_status",
+    "message": "Автозадание выполнено немедленно",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:29:52",
+    "job_id": "sync_keys",
+    "message": "Запуск синхронизации ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:29:52",
+    "job_id": "sync_keys",
+    "message": "Ошибка при синхронизации ключей: Working outside of application context.\n\nThis typically means that you attempted to use functionality that needed\nthe current application. To solve this, set up an application context\nwith app.app_context(). See the documentation for more information.",
+    "level": "error"
+  },
+  {
+    "timestamp": "2025-07-13 15:30:07",
+    "job_id": "sync_keys",
+    "message": "Запуск синхронизации ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:30:13",
+    "job_id": "sync_keys",
+    "message": "Синхронизация ключей завершена. Обработано: 668, синхронизировано: 668, обновлено: 0, не найдено: 0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:35:13",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено с интервалом 60 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:35:13",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:35:13",
+    "job_id": "notify_user_about_key_status",
+    "message": "Автозадание запущено по расписанию 19:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:35:13",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:05",
+    "job_id": "update_key_status",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:05",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено с интервалом 60 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:09",
+    "job_id": "sync_keys",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:09",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:14",
+    "job_id": "notify_user_about_key_status",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:14",
+    "job_id": "notify_user_about_key_status",
+    "message": "Автозадание запущено по расписанию 19:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:23",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:23",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:38",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено с интервалом 60 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:38",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:38",
+    "job_id": "notify_user_about_key_status",
+    "message": "Автозадание запущено по расписанию 19:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:36:38",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:37:38",
+    "job_id": "sync_keys",
+    "message": "Запуск синхронизации ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:37:43",
+    "job_id": "sync_keys",
+    "message": "Синхронизация ключей завершена. Обработано: 668, синхронизировано: 668, обновлено: 0, не найдено: 0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:38:12",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено с интервалом 60 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:38:12",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:38:12",
+    "job_id": "notify_user_about_key_status",
+    "message": "Автозадание запущено по расписанию 19:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:38:12",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:39:12",
+    "job_id": "sync_keys",
+    "message": "Запуск синхронизации ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:39:16",
+    "job_id": "sync_keys",
+    "message": "Синхронизация ключей завершена. Обработано: 668, синхронизировано: 668, обновлено: 0, не найдено: 0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:39:23",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:39:23",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:39:28",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:39:54",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено с интервалом 60 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:39:54",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:39:54",
+    "job_id": "notify_user_about_key_status",
+    "message": "Автозадание запущено по расписанию 19:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:39:54",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:40:54",
+    "job_id": "sync_keys",
+    "message": "Запуск синхронизации ключей",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:40:58",
+    "job_id": "sync_keys",
+    "message": "Синхронизация ключей завершена. Обработано: 668, синхронизировано: 668, обновлено: 0, не найдено: 0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:41:53",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено с интервалом 60 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:41:53",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:41:53",
+    "job_id": "notify_user_about_key_status",
+    "message": "Автозадание запущено по расписанию 19:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:41:53",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:42:04",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:42:04",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:44:34",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:44:43",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:44:43",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:50:35",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 9:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:50:48",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:50:48",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:51:36",
+    "job_id": "update_key_status",
+    "message": "Автозадание запущено с интервалом 60 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:51:36",
+    "job_id": "sync_keys",
+    "message": "Автозадание запущено с интервалом 1 минут",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:51:36",
+    "job_id": "notify_user_about_key_status",
+    "message": "Автозадание запущено по расписанию 19:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:51:36",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:53:54",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:54:10",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:54:10",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 9:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:54:25",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 9:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:54:32",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание остановлено",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-07-13 15:54:32",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  }
+]

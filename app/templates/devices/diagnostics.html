@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Диагностика {{ key }} - SOVA MONITORING{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-stethoscope me-2"></i>
+                        Диагностика устройства: {{ key }}
+                    </h4>
+                    <div>
+                        <a href="{{ url_for('devices.key_access', key=key) }}" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>
+                            Просмотр
+                        </a>
+                        <a href="{{ url_for('devices.devices_list') }}" 
+                           class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Назад к списку
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if device_info %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="card-title">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Основная информация
+                                </h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>UID:</strong></td>
+                                        <td><code class="text-primary">{{ device_info[1] }}</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>IP адрес:</strong></td>
+                                        <td>{{ device_info[2] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Порт:</strong></td>
+                                        <td>{{ device_info[3] }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="card-title">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    Статус подключения
+                                </h5>
+                                <div class="d-grid gap-2">
+                                    <div class="alert alert-success">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Устройство доступно
+                                    </div>
+                                    {% if structured_data %}
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-database me-2"></i>
+                                            Данные получены: {{ structured_data.get('current_time', 'N/A') }}
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Структурированные данные недоступны
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if structured_data %}
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5 class="card-title">
+                                    <i class="fas fa-microchip me-2"></i>
+                                    Диагностика майнеров
+                                </h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>IP адрес</th>
+                                                <th>Статус</th>
+                                                <th>Температура</th>
+                                                <th>Хешрейт</th>
+                                                <th>Вентиляторы</th>
+                                                <th>Диагностика</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for ip, data in structured_data.get('miner_info', {}).get('ip_data', {}).items() %}
+                                            <tr>
+                                                <td><code>{{ ip }}</code></td>
+                                                <td>
+                                                    {% if data.get('status') == 'online' %}
+                                                        <span class="badge bg-success">Online</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Offline</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% set temp = data.get('temperature', 0) %}
+                                                    {% if temp > 80 %}
+                                                        <span class="text-danger fw-bold">{{ temp }}°C</span>
+                                                    {% elif temp > 60 %}
+                                                        <span class="text-warning">{{ temp }}°C</span>
+                                                    {% else %}
+                                                        <span class="text-success">{{ temp }}°C</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ data.get('hashrate', 'N/A') }}</td>
+                                                <td>{{ data.get('fans', 'N/A') }}</td>
+                                                <td>
+                                                    {% if data.get('status') == 'online' %}
+                                                        <span class="badge bg-success">OK</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Проблема</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h5 class="card-title">
+                                    <i class="fas fa-cogs me-2"></i>
+                                    Системная диагностика
+                                </h5>
+                                <div class="list-group">
+                                    {% if structured_data.get('distro_name') %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>Операционная система</span>
+                                            <span class="badge bg-success">{{ structured_data.get('distro_name') }}</span>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if structured_data.get('kernel_version') %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>Версия ядра</span>
+                                            <span class="badge bg-info">{{ structured_data.get('kernel_version') }}</span>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if structured_data.get('client_version') %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>Версия клиента</span>
+                                            <span class="badge bg-primary">{{ structured_data.get('client_version') }}</span>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="card-title">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Потенциальные проблемы
+                                </h5>
+                                <div class="list-group">
+                                    {% set has_issues = false %}
+                                    {% for ip, data in structured_data.get('miner_info', {}).get('ip_data', {}).items() %}
+                                        {% if data.get('status') != 'online' %}
+                                            {% set has_issues = true %}
+                                        {% endif %}
+                                        {% if data.get('temperature', 0) > 80 %}
+                                            {% set has_issues = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if has_issues %}
+                                        {% for ip, data in structured_data.get('miner_info', {}).get('ip_data', {}).items() %}
+                                            {% if data.get('status') != 'online' %}
+                                            <div class="list-group-item list-group-item-danger">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                Майнер {{ ip }}: Офлайн
+                                            </div>
+                                            {% endif %}
+                                            {% if data.get('temperature', 0) > 80 %}
+                                            <div class="list-group-item list-group-item-warning">
+                                                <i class="fas fa-thermometer-half me-2"></i>
+                                                Майнер {{ ip }}: Высокая температура ({{ data.get('temperature') }}°C)
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="list-group-item list-group-item-success">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            Проблем не обнаружено
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Нет данных для диагностики. Устройство может быть недоступно или не отправляет данные.
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Устройство не найдено или недоступно
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

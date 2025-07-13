@@ -1,0 +1,1 @@
+import sqlite3; conn = sqlite3.connect("/root/miner-data/file.db"); cursor = conn.cursor(); cursor.execute("SELECT * FROM user_keys WHERE key=?", ("DBvJoa-313059",)); result = cursor.fetchone(); print("Key found:", result is not None); conn.close()

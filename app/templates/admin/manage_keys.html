@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+
+{% block title %}Управление ключами - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Управление ключами пользователя</h1>
+                <a href="{{ url_for('admin.user_summary', user_id=user.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Назад к профилю пользователя
+                </a>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user"></i> {{ user.username }}
+                        <span class="badge bg-primary ms-2">{{ user.role }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Email:</strong> {{ user.email or 'Не указан' }}</p>
+                            <p><strong>Телефон:</strong> {{ user.phone or 'Не указан' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Баланс:</strong> <span class="badge bg-success">{{ user.balance }} ₽</span></p>
+                            <p><strong>ID пользователя:</strong> {{ user.id }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Action Buttons -->
+            <div class="btn-group mb-4" role="group">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addKeyModal">
+                    <i class="fas fa-plus"></i> Добавить существующий ключ
+                </button>
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#manualKeyModal">
+                    <i class="fas fa-key"></i> Добавить вручную
+                </button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#detachKeyModal">
+                    <i class="fas fa-trash"></i> Удалить ключ
+                </button>
+            </div>
+
+            <!-- Keys Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list"></i> Ключи пользователя ({{ processed_user_keys|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if processed_user_keys %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Ключ</th>
+                                        <th>Статус</th>
+                                        <th>Дата начала</th>
+                                        <th>Дата окончания</th>
+                                        <th>Осталось дней</th>
+                                        <th>Тип операции</th>
+                                        <th>Сумма</th>
+                                        <th>Статус операции</th>
+                                        <th>Дата операции</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key in processed_user_keys %}
+                                    <tr>
+                                        <td><code>{{ key.key }}</code></td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if key.status == 'activated' else 'warning' if key.status == 'available' else 'secondary' }}">
+                                                {{ key.status or 'N/A' }}
+                                            </span>
+                                        </td>
+                                        <td>{{ key.start_date or 'N/A' }}</td>
+                                        <td>{{ key.end_date or 'N/A' }}</td>
+                                        <td>
+                                            {% if key.days_left == 'N/A' %}
+                                                <span class="text-muted">N/A</span>
+                                            {% elif key.days_left == 'Ошибка в формате даты' %}
+                                                <span class="text-danger">Ошибка</span>
+                                            {% else %}
+                                                <span class="badge bg-{{ 'danger' if key.days_left < 0 else 'warning' if key.days_left < 7 else 'success' }}">
+                                                    {{ key.days_left }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="editable" data-operation-id="{{ key.operation.operation_id }}" data-field-name="operation_type" data-key-id="{{ key.id }}">
+                                            {% if key.operation.operation_type == 'sale' %}
+                                                <span class="badge bg-success">Продажа</span>
+                                            {% elif key.operation.operation_type == 'consignment' %}
+                                                <span class="badge bg-info">Реализация</span>
+                                            {% else %}
+                                                <span class="text-muted">{{ key.operation.operation_type or 'N/A' }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="editable" data-operation-id="{{ key.operation.operation_id }}" data-field-name="amount" data-key-id="{{ key.id }}">
+                                            {{ key.operation.amount or 'N/A' }}
+                                        </td>
+                                        <td class="editable" data-operation-id="{{ key.operation.operation_id }}" data-field-name="status" data-key-id="{{ key.id }}">
+                                            {% if key.operation.status == 'pending' %}
+                                                <span class="badge bg-warning">В ожидании</span>
+                                            {% elif key.operation.status == 'confirmed' %}
+                                                <span class="badge bg-success">Подтверждено</span>
+                                            {% elif key.operation.status == 'cancelled' %}
+                                                <span class="badge bg-danger">Отменено</span>
+                                            {% else %}
+                                                <span class="text-muted">{{ key.operation.status or 'N/A' }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ key.operation.date or 'N/A' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-key fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">У пользователя нет ключей</h5>
+                            <p class="text-muted">Добавьте ключи, используя кнопки выше</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Key Modal -->
+<div class="modal fade" id="addKeyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus"></i> Добавить существующий ключ
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="add_keys">
+                    
+                    <div class="mb-3">
+                        <label for="addKeySearch" class="form-label">Поиск ключей</label>
+                        <input type="text" class="form-control" id="addKeySearch" placeholder="Введите ключ для поиска...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="addKeySelect" class="form-label">Выберите ключи</label>
+                        <select id="addKeySelect" name="new_keys" class="form-select" multiple size="8">
+                            {% for key in available_keys %}
+                                <option value="{{ key.key }}">
+                                    {{ key.key }} (Статус: {{ key.status }}, Начало: {{ key.start_date }}, Конец: {{ key.end_date }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Используйте Ctrl+Click для выбора нескольких ключей</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="operation_type" class="form-label">Тип операции</label>
+                                <select name="operation_type" class="form-select" required>
+                                    <option value="sale">Продажа</option>
+                                    <option value="consignment">Реализация</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Сумма</label>
+                                <input type="number" name="amount" class="form-control" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Добавить ключи
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Key Modal -->
+<div class="modal fade" id="manualKeyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-key"></i> Добавить ключ вручную
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="add_manual_key">
+                    
+                    <div class="mb-3">
+                        <label for="manual_key" class="form-label">Введите ключ</label>
+                        <input type="text" name="manual_key" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-key"></i> Добавить вручную
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Detach Key Modal -->
+<div class="modal fade" id="detachKeyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-trash"></i> Удалить ключ
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="detach_keys">
+                    
+                    <div class="mb-3">
+                        <label for="detachKeySearch" class="form-label">Поиск ключей</label>
+                        <input type="text" class="form-control" id="detachKeySearch" placeholder="Введите ключ для поиска...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="detachKeySelect" class="form-label">Выберите ключи для удаления</label>
+                        <select id="detachKeySelect" name="detach_keys" class="form-select" multiple size="8">
+                            {% for key in processed_user_keys %}
+                                <option value="{{ key.key }}">
+                                    {{ key.key }} (Статус: {{ key.status }}, Начало: {{ key.start_date }}, Конец: {{ key.end_date }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Используйте Ctrl+Click для выбора нескольких ключей</div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Внимание!</strong> Удаление ключей также удалит связанные операции и может повлиять на баланс пользователя.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Удалить ключи
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const availableKeys = {{ available_keys | tojson | safe }};
+    const userKeys = {{ processed_user_keys | tojson | safe }};
+
+    // Функция для фильтрации опций в селектах
+    function populateOptions(selectElement, optionsData, filter = "") {
+        const filteredKeys = optionsData.filter(key => 
+            key.key.toLowerCase().includes(filter.toLowerCase())
+        );
+
+        selectElement.innerHTML = "";
+        filteredKeys.forEach(key => {
+            const option = document.createElement("option");
+            option.value = key.key;
+            option.text = `${key.key} (Статус: ${key.status}, Начало: ${key.start_date}, Конец: ${key.end_date})`;
+            selectElement.appendChild(option);
+        });
+    }
+
+    // Обработчики поиска для модальных окон
+    const addKeySearch = document.getElementById('addKeySearch');
+    const addKeySelect = document.getElementById('addKeySelect');
+    const detachKeySearch = document.getElementById('detachKeySearch');
+    const detachKeySelect = document.getElementById('detachKeySelect');
+
+    if (addKeySearch && addKeySelect) {
+        addKeySearch.addEventListener('input', function() {
+            populateOptions(addKeySelect, availableKeys, this.value);
+        });
+    }
+
+    if (detachKeySearch && detachKeySelect) {
+        detachKeySearch.addEventListener('input', function() {
+            populateOptions(detachKeySelect, userKeys, this.value);
+        });
+    }
+
+    // Обработка редактирования ячеек
+    document.querySelectorAll('.editable').forEach(function(element) {
+        element.addEventListener('click', function() {
+            const currentElement = this;
+            const originalValue = currentElement.textContent.trim();
+            const fieldName = currentElement.dataset.fieldName;
+            const operationId = currentElement.dataset.operationId;
+            const keyId = currentElement.dataset.keyId;
+
+            let inputElement;
+
+            if (fieldName === 'operation_type' || fieldName === 'status' || fieldName === 'amount') {
+                let currentOperationId = operationId;
+                if (!currentOperationId) {
+                    // Создаем новую операцию
+                    currentOperationId = 'new';
+                }
+
+                if (fieldName === 'operation_type' || fieldName === 'status') {
+                    const options = fieldName === 'operation_type' ?
+                        {'sale': 'Продажа', 'consignment': 'Реализация'} :
+                        {'pending': 'В ожидании', 'confirmed': 'Подтверждено', 'cancelled': 'Отменено'};
+
+                    inputElement = document.createElement('select');
+                    inputElement.className = 'form-select form-select-sm';
+                    
+                    Object.entries(options).forEach(([value, text]) => {
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.textContent = text;
+                        inputElement.appendChild(option);
+                    });
+                    
+                    // Устанавливаем значение по умолчанию
+                    const currentValue = Object.keys(options).find(key => options[key] === originalValue);
+                    if (currentValue) inputElement.value = currentValue;
+                } else {
+                    inputElement = document.createElement('input');
+                    inputElement.type = 'text';
+                    inputElement.className = 'form-control form-control-sm';
+                    inputElement.value = originalValue;
+                }
+
+                currentElement.innerHTML = '';
+                currentElement.appendChild(inputElement);
+                inputElement.focus();
+
+                inputElement.addEventListener('blur', function() {
+                    const newValue = this.value;
+
+                    fetch('{{ url_for("admin.update_operation_field") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            operation_id: currentOperationId,
+                            field_name: fieldName,
+                            new_value: newValue,
+                            user_id: '{{ user.id }}',
+                            key_id: keyId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (fieldName === 'operation_type') {
+                                const displayValue = {'sale': 'Продажа', 'consignment': 'Реализация'}[newValue] || newValue;
+                                currentElement.innerHTML = `<span class="badge bg-${newValue === 'sale' ? 'success' : 'info'}">${displayValue}</span>`;
+                            } else if (fieldName === 'status') {
+                                const displayValue = {'pending': 'В ожидании', 'confirmed': 'Подтверждено', 'cancelled': 'Отменено'}[newValue] || newValue;
+                                const badgeClass = newValue === 'confirmed' ? 'success' : newValue === 'pending' ? 'warning' : 'danger';
+                                currentElement.innerHTML = `<span class="badge bg-${badgeClass}">${displayValue}</span>`;
+                            } else {
+                                currentElement.textContent = newValue;
+                            }
+                            
+                            // Обновляем operation_id, если операция была создана
+                            if (data.operation_id) {
+                                currentElement.dataset.operationId = data.operation_id;
+                            }
+                        } else {
+                            alert('Ошибка: ' + data.message);
+                            currentElement.textContent = originalValue;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Ошибка при отправке запроса.');
+                        currentElement.textContent = originalValue;
+                    });
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

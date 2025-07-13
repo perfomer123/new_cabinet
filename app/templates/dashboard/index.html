@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Панель управления{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Панель управления
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Общие ссылки -->
+                        {% for link in common_links %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <a href="{{ link.url }}" class="card text-decoration-none h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-link fa-2x text-primary mb-2"></i>
+                                    <h6 class="card-title">{{ link.text }}</h6>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Ролевые ссылки -->
+                        {% for link in links %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <a href="{{ link.url }}" class="card text-decoration-none h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-shield fa-2x text-success mb-2"></i>
+                                    <h6 class="card-title">{{ link.text }}</h6>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Оплата - SOVA MONITORING{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Оплата продления ключа
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="key" class="form-label">
+                                <i class="fas fa-key me-2"></i>Ключ доступа
+                            </label>
+                            <input type="text" class="form-control" id="key" name="key" value="{{ key }}" required>
+                            <div class="form-text">Введите ваш ключ доступа для продления</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="duration" class="form-label">
+                                <i class="fas fa-calendar me-2"></i>Период продления
+                            </label>
+                            <select class="form-select" id="duration" name="duration" required>
+                                <option value="">Выберите период</option>
+                                <option value="1">1 месяц - 299 ₽</option>
+                                <option value="2">3 месяца - 799 ₽</option>
+                                <option value="3">6 месяцев - 1499 ₽</option>
+                                <option value="4">1 год - 2999 ₽</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>
+                                Перейти к оплате
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

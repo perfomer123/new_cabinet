@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Оплата успешна - SOVA MONITORING{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-success">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Оплата успешно завершена
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h5 class="card-title mb-3">Спасибо за оплату!</h5>
+                    <p class="card-text">
+                        Ваш платеж был успешно обработан. Подписка продлена автоматически.
+                    </p>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary me-2">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Перейти в панель управления
+                        </a>
+                        <a href="{{ url_for('payments.pay') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-credit-card me-2"></i>
+                            Новый платеж
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Автоматическое перенаправление через 10 секунд
+    setTimeout(function() {
+        window.location.href = "{{ url_for('dashboard') }}";
+    }, 10000);
+    
+    // Счетчик обратного отсчета
+    let countdown = 10;
+    const countdownElement = document.createElement('div');
+    countdownElement.className = 'text-center mt-3 text-muted';
+    countdownElement.innerHTML = `<small>Автоматическое перенаправление через <span id="countdown">${countdown}</span> секунд</small>`;
+    document.querySelector('.card-body').appendChild(countdownElement);
+    
+    const countdownSpan = document.getElementById('countdown');
+    const interval = setInterval(function() {
+        countdown--;
+        countdownSpan.textContent = countdown;
+        if (countdown <= 0) {
+            clearInterval(interval);
+        }
+    }, 1000);
+</script>
+{% endblock %} 

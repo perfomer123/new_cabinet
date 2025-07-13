@@ -1,0 +1,480 @@
+{% extends "base.html" %}
+
+{% block title %}Детали ключа {{ device_info['uid'] if device_info else '' }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Заголовок страницы -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h2 mb-0">
+                    <i class="fas fa-key text-primary me-2"></i>
+                    Информация о ключе: {{ device_info['uid'] if device_info else 'Неизвестный ключ' }}
+                </h1>
+                <a href="{{ previous_url }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Назад
+                </a>
+            </div>
+            <hr class="my-3">
+        </div>
+    </div>
+
+    {% if device_info %}
+    <!-- Основная информация -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Основная информация
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th class="text-muted" style="width: 120px;">ID:</th>
+                                    <td><strong>{{ device_info['id'] }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">UID:</th>
+                                    <td><code class="bg-light px-2 py-1 rounded">{{ device_info['uid'] }}</code></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">IP:</th>
+                                    <td><span class="badge bg-info">{{ device_info['ip'] }}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th class="text-muted" style="width: 120px;">Порт:</th>
+                                    <td><strong>{{ device_info['port'] }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Обновление:</th>
+                                    <td>
+                                        <small class="text-muted">{{ device_info['timestamp'] }}</small>
+                                        {% if time_ago %}
+                                        <br><span class="badge bg-secondary">{{ time_ago }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if structured_data %}
+    <!-- Системная информация -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-server me-2"></i>Системная информация
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th class="text-muted" style="width: 150px;">CPU Load:</th>
+                                    <td>
+                                        {% if structured_data.get('cpu_load') %}
+                                            <div class="progress" style="height: 20px;">
+                                                {% set cpu_percent = structured_data.get('cpu_load', '0').replace('%', '') %}
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ cpu_percent }}%"
+                                                     aria-valuenow="{{ cpu_percent }}" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    {{ structured_data.get('cpu_load', '0%') }}
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">Нет данных</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Память:</th>
+                                    <td>
+                                        {% if structured_data.get('memory_usage') %}
+                                            <span class="badge bg-warning text-dark">{{ structured_data.get('memory_usage') }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Нет данных</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Диск:</th>
+                                    <td>
+                                        {% if structured_data.get('disk_usage') %}
+                                            <span class="badge bg-info">{{ structured_data.get('disk_usage') }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Нет данных</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th class="text-muted" style="width: 150px;">Внутренний IP:</th>
+                                    <td><code class="bg-light px-2 py-1 rounded">{{ structured_data.get('internal_ip', 'Нет данных') }}</code></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Версия клиента:</th>
+                                    <td><span class="badge bg-secondary">{{ structured_data.get('client_version', 'Неизвестно') }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Статус:</th>
+                                    <td>
+                                        {% if structured_data.get('status') == 'online' %}
+                                            <span class="badge bg-success">Онлайн</span>
+                                        {% elif structured_data.get('status') == 'offline' %}
+                                            <span class="badge bg-danger">Оффлайн</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">{{ structured_data.get('status', 'Неизвестно') }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Дополнительная системная информация -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <small class="text-muted">ОС:</small><br>
+                                            <strong>{{ structured_data.get('distro_name', 'Неизвестно') }}</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-muted">Релиз:</small><br>
+                                            <strong>{{ structured_data.get('distro_release', 'Неизвестно') }}</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-muted">Ядро:</small><br>
+                                            <strong>{{ structured_data.get('kernel_version', 'Неизвестно') }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Туннель -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">Туннель (22333):</span>
+                                {% if structured_data.get('tunnel_22333_running') %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>Запущен
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times-circle me-1"></i>Остановлен
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if 'process_info' in structured_data %}
+    <!-- Процессы -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-tasks me-2"></i>Процессы
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>PID</th>
+                                    <th>CPU</th>
+                                    <th>Memory</th>
+                                    <th>Command Line</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for process in structured_data['process_info'] %}
+                                <tr>
+                                    <td><code>{{ process.get('pid', '') }}</code></td>
+                                    <td>
+                                        {% if process.get('cpu_usage') %}
+                                            <span class="badge bg-primary">{{ process.get('cpu_usage') }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if process.get('memory_usage') %}
+                                            <span class="badge bg-warning text-dark">{{ process.get('memory_usage') }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ process.get('command_line', '') }}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Диагностика -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-stethoscope me-2"></i>Диагностика
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if 'miner_info' in structured_data %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="mb-0">Найдено IP (устройство): <span class="badge bg-primary">{{ device_ip_count }}</span></p>
+                            <a href="{{ url_for('key_access.key_access_diagnostics', key=device_info['uid']) }}" class="btn btn-info">
+                                <i class="fas fa-search me-1"></i>Просмотр диагностики
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Нет данных по майнерам (устройство).
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Серверная База -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-database me-2"></i>Серверная База
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">Всего IP:</span>
+                                <span class="badge bg-primary fs-6">{{ secondary_total }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">Оффлайн:</span>
+                                <span class="badge bg-danger fs-6">{{ offline_count }}</span>
+                                <button class="btn btn-outline-secondary btn-sm ms-2" id="showOfflineBtn">
+                                    <i class="fas fa-eye me-1"></i>Показать OFFLINE IP
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="offlineList" class="mb-3" style="display: none;">
+                        <div class="alert alert-danger">
+                            <h6 class="alert-heading">OFFLINE IP адреса:</h6>
+                            <ul class="list-unstyled mb-0">
+                                {% for ip in offline_ips %}
+                                <li><code>{{ ip }}</code></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Несоответствующие IP -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-danger">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Есть на сервере, нет на устройстве: {{ missing_on_client|length }}
+                            </h6>
+                            {% if missing_on_client %}
+                            <div class="alert alert-warning">
+                                <ul class="list-unstyled mb-0">
+                                {% for ip in missing_on_client %}
+                                    <li><code>{{ ip }}</code></li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-info">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Есть на устройстве, нет на сервере: {{ missing_on_server|length }}
+                            </h6>
+                            {% if missing_on_server %}
+                            <div class="alert alert-info">
+                                <ul class="list-unstyled mb-0">
+                                {% for ip in missing_on_server %}
+                                    <li><code>{{ ip }}</code></li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Нет структурированных данных.</strong>
+        </div>
+    {% endif %}
+
+    {% else %}
+        <div class="alert alert-danger">
+            <i class="fas fa-times-circle me-2"></i>
+            <strong>Данные по ключу не найдены.</strong>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var btn = document.getElementById("showOfflineBtn");
+    var list = document.getElementById("offlineList");
+    if(btn) {
+        btn.addEventListener("click", function(){
+            if (list.style.display === "none") {
+                list.style.display = "block";
+                btn.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Скрыть OFFLINE IP';
+            } else {
+                list.style.display = "none";
+                btn.innerHTML = '<i class="fas fa-eye me-1"></i>Показать OFFLINE IP';
+            }
+        });
+    }
+    
+    // Автообновление страницы каждые 30 секунд
+    setTimeout(function() {
+        location.reload();
+    }, 30000);
+});
+</script>
+
+<style>
+/* Дополнительные стили для улучшения внешнего вида */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.progress {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+.badge {
+    font-size: 0.875em;
+}
+
+.table-responsive {
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.alert {
+    border-radius: 0.5rem;
+}
+
+/* Анимация для кнопок */
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Стили для кода */
+code {
+    font-family: 'Courier New', monospace;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.25rem;
+}
+
+/* Улучшенные стили для таблиц */
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Стили для иконок */
+.fas {
+    width: 1em;
+    text-align: center;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0 10px;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+</style>
+{% endblock %} 
