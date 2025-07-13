@@ -1,4 +1,4 @@
-# Настройка SSH ключа для GitHub
+# Настройка SSH ключа для GitHub (sova-cabinet)
 
 ## Шаг 1: Получить публичный ключ
 Ваш публичный SSH ключ:
@@ -32,6 +32,6 @@ git push -u origin master
 ## Альтернативный способ (HTTPS)
 Если SSH не работает, можно использовать HTTPS:
 ```bash
-git remote set-url origin https://github.com/rskyblue/sova-monitoring-system.git
+git remote set-url origin https://github.com/rskyblue/sova-cabinet.git
 git push -u origin master
 ``` 

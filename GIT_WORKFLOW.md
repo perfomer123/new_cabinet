@@ -1,4 +1,4 @@
-# Git Workflow для проекта Сова Мониторинг
+# Git Workflow для проекта sova-cabinet
 
 ## Настройка GitHub
 
