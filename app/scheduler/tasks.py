@@ -706,17 +706,41 @@ class SchedulerManager:
                 )
                 activation_count = activations_cursor.fetchone()[0]
 
-                # Подсчет продлений за последние 24 часа
+                # Подсчет продлений за последние 24 часа с правильной обработкой временных зон
                 payments_cursor = payments_conn.cursor()
+                # Используем now и now - 1 day для корректного подсчета
                 payments_cursor.execute(
                     """
                     SELECT COUNT(*), SUM(amount)
                     FROM payment
-                    WHERE processed = 1 AND DATETIME(payment_date) >= ? AND DATETIME(payment_date) <= ?
-                    """,
-                    (one_day_ago.strftime('%Y-%m-%d %H:%M:%S'), now.strftime('%Y-%m-%d %H:%M:%S'))
+                    WHERE processed = 1 
+                    AND DATETIME(payment_date, 'localtime') >= DATETIME('now', '-1 day', 'localtime')
+                    AND DATETIME(payment_date, 'localtime') <= DATETIME('now', 'localtime')
+                    """
                 )
                 extensions_count, total_amount = payments_cursor.fetchone()
+                
+                # Дополнительная отладочная информация для проверки всех записей
+                payments_cursor.execute(
+                    """
+                    SELECT id, payment_date, amount
+                    FROM payment
+                    WHERE processed = 1 
+                    AND DATETIME(payment_date, 'localtime') >= DATETIME('now', '-1 day', 'localtime')
+                    AND DATETIME(payment_date, 'localtime') <= DATETIME('now', 'localtime')
+                    ORDER BY payment_date DESC
+                    """
+                )
+                all_records = payments_cursor.fetchall()
+                logger.info(f"DEBUG: All records found: {len(all_records)}")
+                for record in all_records:
+                    logger.info(f"DEBUG: Record ID {record[0]}, Date {record[1]}, Amount {record[2]}")
+                
+                # Отладочная информация
+                logger.info(f"DEBUG: one_day_ago = {one_day_ago.strftime('%Y-%m-%d %H:%M:%S')}")
+                logger.info(f"DEBUG: now = {now.strftime('%Y-%m-%d %H:%M:%S')}")
+                logger.info(f"DEBUG: extensions_count = {extensions_count}, total_amount = {total_amount}")
+                logger.info(f"DEBUG: SQL query executed with localtime")
 
                 # Проверка на None
                 total_amount = total_amount if total_amount is not None else 0

@@ -100,7 +100,11 @@ def verify_phone():
                 from app import db
                 db.session.commit()
                 
-                return redirect(url_for('dashboard.index'))
+                # Устанавливаем токен в cookies
+                from flask import make_response
+                response = make_response(redirect(url_for('dashboard.index')))
+                response.set_cookie('token', token, httponly=True, max_age=31536000)
+                return response
             else:
                 flash('Неверный код подтверждения', 'error')
     
