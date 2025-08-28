@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Панель пользователя{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Панель пользователя
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <!-- Навигация по вкладкам -->
+                    <ul class="nav nav-tabs" id="userTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="keys-tab" data-bs-toggle="tab" data-bs-target="#keys" type="button" role="tab">
+                                <i class="fas fa-key me-2"></i>Мои ключи
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tariffs-tab" data-bs-toggle="tab" data-bs-target="#tariffs" type="button" role="tab">
+                                <i class="fas fa-tags me-2"></i>Тарифы
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="earnings-tab" data-bs-toggle="tab" data-bs-target="#earnings" type="button" role="tab">
+                                <i class="fas fa-money-bill me-2"></i>Заработок
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content mt-3" id="userTabsContent">
+                        <!-- Вкладка Ключи -->
+                        <div class="tab-pane fade show active" id="keys" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-key me-2"></i>Мои ключи</h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Фильтры -->
+                                    <div class="btn-group mb-3" role="group">
+                                        <button class="btn btn-outline-primary filter-btn active" data-status="all">
+                                            Все
+                                        </button>
+                                        <button class="btn btn-outline-primary filter-btn" data-status="new">
+                                            New ({{ data.total_new_devices }})
+                                        </button>
+                                        <button class="btn btn-outline-primary filter-btn" data-status="active">
+                                            Active ({{ data.total_active_devices }})
+                                        </button>
+                                    </div>
+
+                                    <!-- Таблица ключей -->
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Ключ</th>
+                                                    <th>Статус</th>
+                                                    <th>Начало</th>
+                                                    <th>Окончание</th>
+                                                    <th>Остаток дней</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for key, user in data.user_keys %}
+                                                <tr class="status-{{ key.status }}" data-status="{{ key.status }}">
+                                                    <td>{{ key.key }}</td>
+                                                    <td>
+                                                        <span class="badge bg-{% if key.status == 'active' %}success{% elif key.status == 'new' %}warning{% else %}secondary{% endif %}">
+                                                            {{ key.status }}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ key.start_date }}</td>
+                                                    <td>{{ key.end_date }}</td>
+                                                    <td>{{ calculate_days_left(key.end_date) }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка Тарифы -->
+                        <div class="tab-pane fade" id="tariffs" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Мои тарифы</h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Таблица тарифов -->
+                                    <div class="table-responsive mb-4">
+                                        <table class="table table-striped table-hover">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Название</th>
+                                                    <th>Базовая цена</th>
+                                                    <th>Описание</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for tariff in data.assigned_tariffs %}
+                                                <tr>
+                                                    <td>{{ tariff.id }}</td>
+                                                    <td>{{ tariff.name }}</td>
+                                                    <td>{{ tariff.base_price }}</td>
+                                                    <td>Тариф для пользователя</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Статистика -->
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Статистика устройств</h6>
+                                                    <p class="mb-1">Неактивных устройств: <strong>{{ data.total_new_devices }}</strong></p>
+                                                    <p class="mb-0">Активных устройств: <strong>{{ data.total_active_devices }}</strong></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Финансы</h6>
+                                                    <p class="mb-0">Всего начислено: <strong>{{ data.earnings_summary }}</strong></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка Заработок -->
+                        <div class="tab-pane fade" id="earnings" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-money-bill me-2"></i>Мой заработок</h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Статистика -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Статистика устройств</h6>
+                                                    <p class="mb-1">Неактивных устройств: <strong>{{ data.total_new_devices }}</strong></p>
+                                                    <p class="mb-0">Активных устройств: <strong>{{ data.total_active_devices }}</strong></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Финансы</h6>
+                                                    <p class="mb-0">Всего начислено: <strong>{{ data.earnings_summary }}</strong></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- История начислений -->
+                                    <div class="mt-4">
+                                        <h6>История начислений</h6>
+                                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                            <table class="table table-sm table-striped">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Ключ</th>
+                                                        <th>Сумма</th>
+                                                        <th>Дата</th>
+                                                        <th>Описание</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for earning in data.earnings_data %}
+                                                    <tr>
+                                                        <td>{{ earning.id }}</td>
+                                                        <td>{{ earning.key_id }}</td>
+                                                        <td>{{ earning.amount }}</td>
+                                                        <td>{{ earning.date.strftime('%Y-%m-%d %H:%M') if earning.date else '' }}</td>
+                                                        <td>{{ earning.description }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.status-new { background-color: #fff3cd !important; }
+.status-active { background-color: #d4edda !important; }
+.status-inactive { background-color: #ececec !important; }
+</style>
+
+<script>
+// Фильтрация ключей по статусу
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const status = this.dataset.status;
+        
+        // Обновляем активную кнопку
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Фильтруем строки таблицы
+        document.querySelectorAll('#keys tbody tr').forEach(row => {
+            const rowStatus = row.dataset.status;
+            if (status === 'all' || rowStatus === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

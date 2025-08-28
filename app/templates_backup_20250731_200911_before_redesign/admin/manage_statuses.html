@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Управление - Cabinet{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12 d-flex gap-3 justify-content-start">
+            <a href="/keys_management" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-key me-2"></i> Управление ключами
+            </a>
+            <a href="/scheduler" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-robot me-2"></i> Автозадания
+            </a>
+            <a href="/devices" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-server me-2"></i> Устройства
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

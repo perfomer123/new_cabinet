@@ -1,8 +1,17 @@
-{% extends "base.html" %}
+{% extends "admin/base_admin.html" %}
 
 {% block title %}Пользователи{% endblock %}
 
-{% block content %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Админка</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Пользователи</li>
+  </ol>
+  </nav>
+{% endblock %}
+
+{% block admin_content %}
 <div class="container-fluid">
     <!-- Заголовок -->
     <div class="row mb-4">
@@ -52,7 +61,7 @@
                                     <td>{{ user.email or 'Не указан' }}</td>
                                     <td>{{ user.phone or 'Не указан' }}</td>
                                     <td>
-                                        <span class="badge badge-{% if user.role == 'admin' %}danger{% elif user.role == 'partner' %}primary{% elif user.role == 'manager' %}info{% elif user.role == 'supervisor' %}warning{% else %}secondary{% endif %}">
+                                        <span class="badge bg-{% if user.role == 'admin' %}danger{% elif user.role == 'partner' %}primary{% elif user.role == 'manager' %}info{% elif user.role == 'supervisor' %}warning{% else %}secondary{% endif %}">
                                             {{ user.role }}
                                         </span>
                                     </td>
@@ -91,13 +100,4 @@
     </div>
 </div>
 
-<script>
-$(document).ready(function() {
-    $('#usersTable').DataTable({
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Russian.json"
-        }
-    });
-});
-</script>
 {% endblock %} 

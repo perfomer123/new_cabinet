@@ -1,0 +1,1100 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика партнеров - Cabinet{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    /* Общие стили для статистики */
+    .stats-container {
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: box-shadow 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card i {
+        font-size: 2rem;
+        color: #3b82f6;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0.5rem 0;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Фильтры */
+    .filters-section {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+    
+    .filters-section h5 {
+        color: #1e293b;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    /* Мультиселект */
+    .custom-multiselect {
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        background: #fff;
+        max-height: 260px;
+        overflow-y: auto;
+        position: relative;
+    }
+    
+    .custom-multiselect .form-check {
+        padding: 0.5rem 1rem;
+        margin: 0;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .custom-multiselect .form-check:last-child {
+        border-bottom: none;
+    }
+    
+    .custom-multiselect .form-check:hover {
+        background-color: #f8f9fa;
+    }
+    
+    /* Теги выбранных партнеров */
+    .partner-tag {
+        display: inline-block;
+        background: #3b82f6;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        margin: 0.125rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .partner-tag:hover {
+        background: #2563eb;
+    }
+    
+    /* Таблицы */
+    .table-container {
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #1e293b;
+        font-weight: 600;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .table tbody tr:nth-child(even) {
+        background-color: #f8fafc;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f1f5f9;
+    }
+    
+    /* Прогресс бары */
+    .progress {
+        height: 22px;
+        border-radius: 0.375rem;
+    }
+    
+    .progress-bar {
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    /* Загрузка */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .loading-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    /* Быстрые кнопки дат */
+    .date-quick-buttons .btn {
+        margin: 0.125rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .stat-card {
+            padding: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+        }
+        
+        .filters-section {
+            padding: 1rem;
+        }
+    }
+    .flatpickr-input {
+        font-size: 1.25rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+        width: 100%;
+    }
+    .date-picker-label {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .date-picker-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    .date-picker-icon {
+        font-size: 1.3rem;
+        color: #3b82f6;
+        margin-right: 0.5rem;
+    }
+    .period-header-dates {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #fff;
+        background: rgba(0,0,0,0.08);
+        border-radius: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        margin-left: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Статистика партнеров
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Сообщения об ошибках -->
+                    {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endif %}
+
+                    <!-- Фильтры -->
+                    <div class="filters-section px-2 py-2 mb-3" style="box-shadow:0 2px 8px rgba(0,0,0,0.04); border-radius:1rem; position:sticky; top:0; z-index:10;">
+                        <form id="filterForm" class="d-flex flex-row flex-wrap align-items-center gap-2 justify-content-between" onsubmit="PartnerStatistics.submitForm(); return false;">
+                            <!-- Даты слева -->
+                            <div class="d-flex align-items-center gap-2" style="min-width:220px;">
+                                <div style="min-width:110px;">
+                                    <input type="text" id="start_date" name="start_date" class="form-control flatpickr-input" placeholder="Дата с" required readonly style="height:40px; font-size:1rem;">
+                                </div>
+                                <span style="font-size:1.2rem; color:#888;">–</span>
+                                <div style="min-width:110px;">
+                                    <input type="text" id="end_date" name="end_date" class="form-control flatpickr-input" placeholder="Дата по" required readonly style="height:40px; font-size:1rem;">
+                                </div>
+                            </div>
+                            <!-- Партнёры по центру -->
+                            <div class="flex-grow-1 d-flex flex-column align-items-center" style="min-width:220px; max-width:420px;">
+                                <div class="w-100 position-relative">
+                                    <div id="partnerSelectField" class="form-control d-flex align-items-center" style="height:40px; cursor:pointer; overflow-x:auto; white-space:nowrap; padding-left:28px; padding-right:32px;" onclick="PartnerStatistics.togglePartnerDropdown()">
+                                        <i class="fas fa-users me-2 text-primary" style="position:absolute; left:8px;"></i>
+                                        <span id="partnerTagsContainer" class="d-flex align-items-center flex-nowrap" style="gap:0.25rem;"></span>
+                                        <span id="partnerPlaceholder" class="text-muted ms-2">Партнёры...</span>
+                                        <span class="ms-auto"><i class="fas fa-chevron-down"></i></span>
+                                    </div>
+                                    <div id="partnerDropdown" class="custom-multiselect shadow" style="display:none; position:absolute; top:44px; left:0; right:0; z-index:20; background:#fff; max-height:260px; overflow-y:auto; border:1px solid #ced4da; border-radius:0.375rem;">
+                                        <div class="p-2 border-bottom">
+                                            <input type="text" id="partnerSearch" class="form-control form-control-sm" placeholder="Поиск партнёра..." onkeyup="PartnerStatistics.filterPartnerOptions()">
+                                        </div>
+                                        <div class="p-2 border-bottom">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="PartnerStatistics.selectAllPartners()" style="font-size:0.85rem; padding:2px 8px;">
+                                                <i class="fas fa-check-double me-1"></i>Все
+                                            </button>
+                                        </div>
+                                        <div id="partnerOptions">
+                                            <div class="form-check ms-4 mb-1">
+                                                <input class="form-check-input" type="checkbox" id="partner_all" value="all" onchange="PartnerStatistics.onPartnerCheck(this)" {% if 'all' in selected_partners or not selected_partners %}checked{% endif %}>
+                                                <label class="form-check-label" for="partner_all">Все партнёры</label>
+                                            </div>
+                                            {% for partner in partners %}
+                                            <div class="form-check ms-4 mb-1 partner-option">
+                                                <input class="form-check-input" type="checkbox" id="partner_{{ loop.index }}" value="{{ partner }}" onchange="PartnerStatistics.onPartnerCheck(this)" {% if partner in selected_partners %}checked{% endif %}>
+                                                <label class="form-check-label" for="partner_{{ loop.index }}">{{ partner }}</label>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="partnerHidden" name="partner">
+                                </div>
+                            </div>
+                            <!-- Кнопки справа -->
+                            <div class="d-flex flex-column align-items-end gap-1" style="min-width:210px;">
+                                <div class="d-flex gap-1 mb-1">
+                                    <button type="submit" class="btn btn-primary btn-sm" style="height:40px; min-width:90px; font-size:0.95rem;">
+                                        <i class="fas fa-search me-1"></i>Применить
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="PartnerStatistics.resetFilters()" style="height:40px; min-width:70px; font-size:0.95rem;">
+                                        <i class="fas fa-undo me-1"></i>Сброс
+                                    </button>
+                                </div>
+                                <div class="date-quick-buttons d-flex gap-1 flex-wrap justify-content-end align-items-end" style="margin-bottom:0;">
+                                    <div class="d-flex flex-column align-items-center" style="min-width:56px;">
+                                        <button type="button" class="btn btn-outline-primary btn-sm px-2" onclick="PartnerStatistics.setDateRange('today')" title="Сегодня"><i class="fas fa-calendar-day"></i></button>
+                                        <span class="text-muted" style="font-size:0.68rem; line-height:1.1; margin-top:2px;">Сегодня</span>
+                                    </div>
+                                    <div class="d-flex flex-column align-items-center" style="min-width:56px;">
+                                        <button type="button" class="btn btn-outline-primary btn-sm px-2" onclick="PartnerStatistics.setDateRange('yesterday')" title="Вчера"><i class="fas fa-calendar-minus"></i></button>
+                                        <span class="text-muted" style="font-size:0.68rem; line-height:1.1; margin-top:2px;">Вчера</span>
+                                    </div>
+                                    <div class="d-flex flex-column align-items-center" style="min-width:56px;">
+                                        <button type="button" class="btn btn-outline-primary btn-sm px-2" onclick="PartnerStatistics.setDateRange('week')" title="Неделя"><i class="fas fa-calendar-week"></i></button>
+                                        <span class="text-muted" style="font-size:0.68rem; line-height:1.1; margin-top:2px;">7 дней</span>
+                                    </div>
+                                    <div class="d-flex flex-column align-items-center" style="min-width:56px;">
+                                        <button type="button" class="btn btn-outline-primary btn-sm px-2" onclick="PartnerStatistics.setDateRange('month')" title="Месяц"><i class="fas fa-calendar-alt"></i></button>
+                                        <span class="text-muted" style="font-size:0.68rem; line-height:1.1; margin-top:2px;">Месяц</span>
+                                    </div>
+                                    <div class="d-flex flex-column align-items-center" style="min-width:56px;">
+                                        <button type="button" class="btn btn-outline-primary btn-sm px-2" onclick="PartnerStatistics.setDateRange('quarter')" title="Квартал"><i class="fas fa-calendar"></i></button>
+                                        <span class="text-muted" style="font-size:0.68rem; line-height:1.1; margin-top:2px;">Квартал</span>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted mt-0 ms-1" style="font-size:0.85rem; margin-top:2px;">Выберите период и партнёров для просмотра статистики</small>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Статистика за сегодня -->
+                    <div class="row justify-content-center" style="margin-top: 12px; margin-bottom: 12px;">
+                        <div class="col-12 col-md-7 col-lg-5">
+                            <div class="card border-info shadow" style="background:linear-gradient(90deg,#e0f7fa 0,#f1f8ff 100%); min-height:90px;">
+                                <div class="card-header bg-info text-white d-flex align-items-center" style="border-radius:0.75rem 0.75rem 0 0;">
+                                    <i class="fas fa-calendar-day me-2"></i>
+                                    <h5 class="card-title mb-0 flex-grow-1">Статистика за сегодня</h5>
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column align-items-center justify-content-center">
+                                    <div id="todayStats"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Гибридный модуль: статистика и сравнение за период -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white d-flex align-items-center">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-chart-bar me-2"></i>Статистика и сравнение за период
+                                    </h5>
+                                    <span class="period-header-dates ms-3" id="periodHeaderDates"></span>
+                                </div>
+                                <div class="card-body">
+                                    <div id="hybridPeriodStats"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Детальная таблица -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-table me-2"></i>Детальная статистика по дням
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="accordion" id="detailsAccordion">
+                                        {% for partner in partners %}
+                                        <div class="accordion-item mb-2">
+                                            <h2 class="accordion-header" id="heading{{ loop.index }}">
+                                                <button class="accordion-button collapsed d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                                                    <strong>{{ partner }}</strong>
+                                                </button>
+                                            </h2>
+                                            <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#detailsAccordion">
+                                                <div class="accordion-body p-2">
+                                                    {% if partner_details.get(partner) and partner_details[partner] %}
+                                                    <table class="table table-sm mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Дата</th>
+                                                                <th>Активировано устройств</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for detail in partner_details[partner] %}
+                                                            <tr>
+                                                                <td>{{ detail.activation_date }}</td>
+                                                                <td><span class="badge bg-success">{{ detail.activated_devices }}</span></td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                    {% else %}
+                                                    <div class="text-muted ps-2">Нет данных</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ссылка на статистику за всё время -->
+                    <div class="row mt-4">
+                        <div class="col-md-12 text-center">
+                            <a href="{{ url_for('partner_statistics.partner_statistics_all_time') }}" 
+                               class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-chart-bar me-2"></i>Статистика за всё время
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-2 mb-0">Загрузка данных...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+<script>
+// Модуль для управления статистикой партнеров
+const PartnerStatistics = {
+    // Показать/скрыть загрузку
+    showLoading() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    },
+    
+    hideLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    },
+    
+    // Установка диапазона дат
+    setDateRange(range) {
+        const today = new Date();
+        let startDate, endDate;
+        switch(range) {
+            case 'today': 
+                startDate = endDate = today; 
+                break;
+            case 'yesterday': 
+                startDate = endDate = new Date(today.getTime() - 24 * 60 * 60 * 1000); 
+                break;
+            case 'week': 
+                startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000); 
+                endDate = today; 
+                break;
+            case 'month': 
+                startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000); 
+                endDate = today; 
+                break;
+            case 'quarter': 
+                startDate = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000); 
+                endDate = today; 
+                break;
+        }
+        document.getElementById('start_date').value = startDate.toISOString().split('T')[0];
+        document.getElementById('end_date').value = endDate.toISOString().split('T')[0];
+        
+        // Обновляем URL при явном выборе пользователем
+        const params = new URLSearchParams();
+        params.append('start_date', document.getElementById('start_date').value);
+        params.append('end_date', document.getElementById('end_date').value);
+        const checked = Array.from(document.querySelectorAll('#partnerOptions input[type=checkbox]:checked'));
+        checked.forEach(chk => params.append('partner', chk.value));
+        this.updateURL(params);
+        
+        this.submitForm();
+    },
+    
+    // Сброс фильтров
+    resetFilters() {
+        const today = new Date();
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        document.getElementById('start_date').value = weekAgo.toISOString().split('T')[0];
+        document.getElementById('end_date').value = today.toISOString().split('T')[0];
+        
+        // Сброс выбора партнеров
+        document.querySelectorAll('#partnerOptions input[type=checkbox]').forEach(c => c.checked = false);
+        document.getElementById('partner_all').checked = true;
+        
+        this.updatePartnerTags();
+        this.updatePartnerHidden();
+        
+        // Обновляем URL при явном сбросе пользователем
+        const params = new URLSearchParams();
+        params.append('start_date', document.getElementById('start_date').value);
+        params.append('end_date', document.getElementById('end_date').value);
+        params.append('partner', 'all');
+        this.updateURL(params);
+        
+        this.submitForm();
+    },
+    
+    // Обновление тегов партнеров
+    updatePartnerTags() {
+        const checked = Array.from(document.querySelectorAll('#partnerOptions input[type=checkbox]:checked'));
+        const tagsContainer = document.getElementById('partnerTagsContainer');
+        const placeholder = document.getElementById('partnerPlaceholder');
+        const tags = [];
+        
+        checked.forEach(chk => {
+            if (chk.value === 'all') return;
+            
+            const tag = document.createElement('span');
+            tag.className = 'partner-tag';
+            tag.textContent = chk.nextElementSibling.textContent;
+            tag.onclick = () => { 
+                chk.checked = false; 
+                this.onPartnerCheck(chk); 
+            };
+            tags.push(tag);
+        });
+        
+        tagsContainer.innerHTML = '';
+        tagsContainer.append(...tags);
+        
+        if (tags.length === 0) {
+            placeholder.style.display = 'block';
+        } else {
+            placeholder.style.display = 'none';
+        }
+    },
+    
+    // Обработка изменения выбора партнера
+    onPartnerCheck(chk) {
+        if (chk.value === 'all') {
+            // Если выбрано "Все партнёры" — снять все остальные
+            document.querySelectorAll('#partnerOptions input[type=checkbox]').forEach(c => {
+                if (c.value !== 'all') c.checked = false;
+            });
+        } else {
+            // Если выбран хотя бы один — снять "Все партнёры"
+            if (chk.checked) document.getElementById('partner_all').checked = false;
+            
+            // Если ничего не выбрано — вернуть "Все партнёры"
+            const anyChecked = Array.from(document.querySelectorAll('#partnerOptions input[type=checkbox]'))
+                .some(c => c.checked && c.value !== 'all');
+            if (!anyChecked) document.getElementById('partner_all').checked = true;
+        }
+        
+        this.updatePartnerTags();
+        this.updatePartnerHidden();
+        
+        // Обновляем URL при явном изменении выбора партнеров
+        const params = new URLSearchParams();
+        params.append('start_date', document.getElementById('start_date').value);
+        params.append('end_date', document.getElementById('end_date').value);
+        const checked = Array.from(document.querySelectorAll('#partnerOptions input[type=checkbox]:checked'));
+        checked.forEach(chk => params.append('partner', chk.value));
+        this.updateURL(params);
+        
+        this.submitForm();
+    },
+    
+    // Обновление скрытого поля
+    updatePartnerHidden() {
+        const checked = Array.from(document.querySelectorAll('#partnerOptions input[type=checkbox]:checked'));
+        const hidden = document.getElementById('partnerHidden');
+        hidden.value = checked.map(c => c.value).join(',');
+    },
+    
+    // Выбрать всех партнеров
+    selectAllPartners() {
+        document.querySelectorAll('#partnerOptions input[type=checkbox]').forEach(c => c.checked = false);
+        document.getElementById('partner_all').checked = true;
+        this.updatePartnerTags();
+        this.updatePartnerHidden();
+        this.submitForm();
+    },
+    
+    // Фильтрация опций партнеров
+    filterPartnerOptions() {
+        const input = document.getElementById('partnerSearch').value.toLowerCase();
+        document.querySelectorAll('.partner-option').forEach(opt => {
+            const label = opt.querySelector('label').textContent.toLowerCase();
+            opt.style.display = label.includes(input) ? '' : 'none';
+        });
+    },
+    
+    // Отправка формы
+    submitForm() {
+        const start = document.getElementById('start_date').value;
+        const end = document.getElementById('end_date').value;
+        if (!start || !end || !isValidDateRange(start, end)) return; // Не отправлять запрос, если даты не выбраны или невалидны
+        const formData = new FormData(document.getElementById('filterForm'));
+        const params = new URLSearchParams();
+        
+        // Обработка партнеров
+        const checked = Array.from(document.querySelectorAll('#partnerOptions input[type=checkbox]:checked'));
+        const selectedPartners = checked.map(chk => chk.value);
+        
+        for (let [key, value] of formData.entries()) {
+            if (key === 'partner') {
+                selectedPartners.forEach(partner => { 
+                    params.append('partner', partner); 
+                });
+            } else {
+                params.append(key, value);
+            }
+        }
+        
+        // Обновляем URL при явном применении фильтров
+        this.updateURL(params);
+        
+        this.loadData(params);
+    },
+    
+    // Загрузка данных
+    loadData(params) {
+        const start = document.getElementById('start_date').value;
+        const end = document.getElementById('end_date').value;
+        if (!start || !end || !isValidDateRange(start, end)) return; // Не отправлять запрос, если даты не выбраны или невалидны
+        this.showLoading();
+        
+        fetch(`/api/partner_statistics?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) { 
+                    this.showError('Ошибка при загрузке данных: ' + data.error); 
+                    return; 
+                }
+                
+                this.updateHybridPeriodStats(data);
+                this.updateTodayStats(data);
+                this.updateDetailsTable(data);
+                this.updatePartnerOptions(data);
+                
+                // НЕ обновляем URL при автоматической загрузке из localStorage
+                // URL обновляется только при явном изменении фильтров пользователем
+            })
+            .catch(error => { 
+                console.error('Error:', error); 
+                this.showError('Ошибка при загрузке данных'); 
+            })
+            .finally(() => { 
+                this.hideLoading(); 
+            });
+    },
+    
+    // Обновление сравнительной таблицы
+    updateCompareTable(data) {
+        let compareHtml = `
+            <table class='table table-bordered text-center'>
+                <thead class='table-info'>
+                    <tr>
+                        <th>Партнёр</th>
+                        <th>За период</th>
+                        <th>% от итога</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        data.partners.forEach(partner => {
+            const count = data.period_stats[partner] || 0;
+            const percent = data.period_percent[partner] || 0;
+            
+            compareHtml += `
+                <tr>
+                    <td><strong>${partner}</strong></td>
+                    <td><span class='badge bg-primary fs-6'>${count}</span></td>
+                    <td>
+                        <div class='progress'>
+                            <div class='progress-bar bg-info' style='width:${percent}%'>
+                                ${percent.toFixed(1)}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        compareHtml += '</tbody></table>';
+        document.getElementById('compareTable').innerHTML = compareHtml;
+    },
+    
+    // Обновление статистики за период
+    updatePeriodStats(data) {
+        let periodStatsHtml = `
+            <div class='d-flex justify-content-between align-items-center p-3 bg-success bg-opacity-10 rounded mb-3'>
+                <span class='fw-bold fs-5'>Общий итог за период:</span>
+                <span class='badge bg-success fs-5'>${data.period_total}</span>
+            </div>
+        `;
+        
+        periodStatsHtml += data.partners.map(partner => `
+            <div class='d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded'>
+                <span class='fw-bold'>${partner}</span>
+                <span class='badge bg-primary fs-6'>${data.period_stats[partner] || 0}</span>
+            </div>
+        `).join('');
+        
+        document.getElementById('periodStats').innerHTML = periodStatsHtml;
+    },
+    
+    // Обновление статистики за сегодня
+    updateTodayStats(data) {
+        let todayStatsHtml = `
+            <div class='d-flex justify-content-between align-items-center p-3 bg-info bg-opacity-10 rounded mb-3'>
+                <span class='fw-bold fs-5'>Общий итог за сегодня:</span>
+                <span class='badge bg-info fs-5'>${data.today_total}</span>
+            </div>
+        `;
+        
+        todayStatsHtml += data.partners.map(partner => `
+            <div class='d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded'>
+                <span class='fw-bold'>${partner}</span>
+                <span class='badge bg-info fs-6'>${data.today_stats[partner] || 0}</span>
+            </div>
+        `).join('');
+        
+        document.getElementById('todayStats').innerHTML = todayStatsHtml;
+    },
+    
+    // Обновление детальной таблицы
+    updateDetailsTable(data) {
+        const detailsAccordion = document.getElementById('detailsAccordion');
+        if (!detailsAccordion) return;
+        let html = '';
+        data.partners.forEach((partner, idx) => {
+            const details = data.partner_details[partner] || [];
+            html += `
+            <div class="accordion-item mb-2">
+                <h2 class="accordion-header" id="heading${idx+1}">
+                    <button class="accordion-button collapsed d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${idx+1}" aria-expanded="false" aria-controls="collapse${idx+1}">
+                        <strong>${partner}</strong>
+                    </button>
+                </h2>
+                <div id="collapse${idx+1}" class="accordion-collapse collapse" aria-labelledby="heading${idx+1}" data-bs-parent="#detailsAccordion">
+                    <div class="accordion-body p-2">
+                        ${details.length > 0 ? `
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr><th>Дата</th><th>Активировано устройств</th></tr>
+                            </thead>
+                            <tbody>
+                                ${details.map(detail => `
+                                    <tr>
+                                        <td>${formatDateDMY(detail.activation_date)}</td>
+                                        <td><span class="badge bg-success">${detail.activated_devices}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        ` : `<div class="text-muted ps-2">Нет данных</div>`}
+                    </div>
+                </div>
+            </div>
+            `;
+        });
+        detailsAccordion.innerHTML = html;
+    },
+    
+    // Обновление опций партнеров
+    updatePartnerOptions(data) {
+        if (data.all_partners) {
+            const optionsDiv = document.getElementById('partnerOptions');
+            let html = `
+                <div class='form-check ms-4 mb-1'>
+                    <input class='form-check-input' type='checkbox' id='partner_all' value='all' onchange='PartnerStatistics.onPartnerCheck(this)'>
+                    <label class='form-check-label' for='partner_all'>Все партнёры</label>
+                </div>
+            `;
+            
+            data.all_partners.forEach((p, i) => {
+                html += `
+                    <div class='form-check ms-4 mb-1 partner-option'>
+                        <input class='form-check-input' type='checkbox' id='partner_${i+1}' value='${p}' onchange='PartnerStatistics.onPartnerCheck(this)'>
+                        <label class='form-check-label' for='partner_${i+1}'>${p}</label>
+                    </div>
+                `;
+            });
+            
+            optionsDiv.innerHTML = html;
+            
+            // Восстановить выбранные
+            (data.selected_partners || []).forEach(val => {
+                const el = document.querySelector(`#partnerOptions input[value="${val}"]`);
+                if (el) el.checked = true;
+            });
+            
+            if (!data.selected_partners || data.selected_partners.length === 0 || data.selected_partners.includes('all')) {
+                document.getElementById('partner_all').checked = true;
+            }
+            
+            this.updatePartnerTags();
+            this.updatePartnerHidden();
+        }
+    },
+    
+    // Показать ошибку
+    showError(message) {
+        // Создаем alert для ошибки
+        const alertHtml = `
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Вставляем в начало card-body
+        const cardBody = document.querySelector('.card-body');
+        cardBody.insertAdjacentHTML('afterbegin', alertHtml);
+        
+        // Автоматически скрываем через 5 секунд
+        setTimeout(() => {
+            const alert = cardBody.querySelector('.alert');
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    },
+
+    // Открытие/закрытие выпадающего списка партнеров
+    togglePartnerDropdown() {
+        const dropdown = document.getElementById('partnerDropdown');
+        const selectField = document.getElementById('partnerSelectField');
+        const placeholder = document.getElementById('partnerPlaceholder');
+
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+            selectField.classList.add('is-focused');
+            placeholder.style.display = 'none';
+        } else {
+            dropdown.style.display = 'none';
+            selectField.classList.remove('is-focused');
+            placeholder.style.display = 'block';
+        }
+    },
+    
+    // Обновление URL при явных действиях пользователя
+    updateURL(params) {
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.pushState({}, '', newUrl);
+    }
+};
+
+// flatpickr для выбора дат
+// flatpickr("#start_date", {dateFormat: "d.m.Y", locale: "ru"});
+// flatpickr("#end_date", {dateFormat: "d.m.Y", locale: "ru"});
+
+// --- LocalStorage для фильтров ---
+function saveFiltersToStorage() {
+    const start = document.getElementById('start_date').value;
+    const end = document.getElementById('end_date').value;
+    const partners = document.getElementById('partnerHidden').value;
+    localStorage.setItem('partnerStats_start', start);
+    localStorage.setItem('partnerStats_end', end);
+    localStorage.setItem('partnerStats_partners', partners);
+}
+function loadFiltersFromStorage() {
+    const start = localStorage.getItem('partnerStats_start');
+    const end = localStorage.getItem('partnerStats_end');
+    const partners = localStorage.getItem('partnerStats_partners');
+    if (start) document.getElementById('start_date').value = start;
+    if (end) document.getElementById('end_date').value = end;
+    if (partners) {
+        // Установить чекбоксы партнёров
+        const arr = partners.split(',');
+        document.querySelectorAll('#partnerOptions input[type=checkbox]').forEach(c => {
+            c.checked = arr.includes(c.value);
+        });
+        PartnerStatistics.updatePartnerTags();
+        PartnerStatistics.updatePartnerHidden();
+    }
+}
+function clearFiltersStorage() {
+    localStorage.removeItem('partnerStats_start');
+    localStorage.removeItem('partnerStats_end');
+    localStorage.removeItem('partnerStats_partners');
+}
+function isValidDateRange(start, end) {
+    if (!start || !end) return false;
+    const s = start.split('.').length === 3 ? start.split('.').reverse().join('-') : start;
+    const e = end.split('.').length === 3 ? end.split('.').reverse().join('-') : end;
+    const sd = new Date(s);
+    const ed = new Date(e);
+    const now = new Date();
+    if (isNaN(sd) || isNaN(ed)) return false;
+    if (sd > ed) return false;
+    if (sd > now || ed > now) return false;
+    // Разрешаем диапазон 'один день'
+    if ((ed - sd) / (1000*3600*24) > 366) return false;
+    return true;
+}
+// --- Вызовы ---
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем, есть ли query-параметры в URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasQueryParams = urlParams.has('start_date') || urlParams.has('end_date') || urlParams.has('partner');
+    
+    if (hasQueryParams) {
+        // Если есть query-параметры - используем их
+        const start = urlParams.get('start_date');
+        const end = urlParams.get('end_date');
+        if (isValidDateRange(start, end)) {
+            document.getElementById('start_date').value = start;
+            document.getElementById('end_date').value = end;
+            loadFiltersFromStorage();
+        } else {
+            // Если query-параметры невалидны - очищаем localStorage и выставляем неделю
+            clearFiltersStorage();
+            setDefaultWeek();
+        }
+    } else {
+        // Если НЕТ query-параметров - ИГНОРИРУЕМ localStorage и всегда выставляем неделю
+        clearFiltersStorage();
+        setDefaultWeek();
+    }
+    
+    // Теперь инициализируем flatpickr
+    flatpickr("#start_date", {dateFormat: "d.m.Y", locale: "ru"});
+    flatpickr("#end_date", {dateFormat: "d.m.Y", locale: "ru"});
+    PartnerStatistics.updatePartnerTags();
+    PartnerStatistics.updatePartnerHidden();
+    setTimeout(() => {
+        // Всегда выбираем всех партнёров по умолчанию
+        PartnerStatistics.selectAllPartners();
+        PartnerStatistics.submitForm();
+    }, 120);
+    // Обновляем заголовок периода при загрузке
+    updatePeriodHeaderDates(getInputValue('start_date'), getInputValue('end_date'));
+    // Обновляем заголовок при изменении дат
+    document.getElementById('start_date').addEventListener('change', function() {
+        updatePeriodHeaderDates(this.value, getInputValue('end_date'));
+        // Обновляем URL при ручном изменении дат
+        const params = new URLSearchParams();
+        params.append('start_date', this.value);
+        params.append('end_date', getInputValue('end_date'));
+        const checked = Array.from(document.querySelectorAll('#partnerOptions input[type=checkbox]:checked'));
+        checked.forEach(chk => params.append('partner', chk.value));
+        PartnerStatistics.updateURL(params);
+    });
+    document.getElementById('end_date').addEventListener('change', function() {
+        updatePeriodHeaderDates(getInputValue('start_date'), this.value);
+        // Обновляем URL при ручном изменении дат
+        const params = new URLSearchParams();
+        params.append('start_date', getInputValue('start_date'));
+        params.append('end_date', this.value);
+        const checked = Array.from(document.querySelectorAll('#partnerOptions input[type=checkbox]:checked'));
+        checked.forEach(chk => params.append('partner', chk.value));
+        PartnerStatistics.updateURL(params);
+    });
+    // Обработчик отправки формы
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        PartnerStatistics.submitForm();
+    });
+    
+    // Обработчик клика вне области выпадающего списка партнёров
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('partnerDropdown');
+        const selectField = document.getElementById('partnerSelectField');
+        const placeholder = document.getElementById('partnerPlaceholder');
+        
+        // Проверяем, что клик был вне области выпадающего списка
+        if (!selectField.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.style.display = 'none';
+            selectField.classList.remove('is-focused');
+            placeholder.style.display = 'block';
+        }
+    });
+});
+
+// Функция для установки дефолтной недели
+function setDefaultWeek() {
+    const today = new Date();
+    const weekAgo = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
+    const format = d => d.toLocaleDateString('ru-RU').replace(/\//g, '.');
+    document.getElementById('start_date').value = format(weekAgo);
+    document.getElementById('end_date').value = format(today);
+}
+// Сохранять фильтры при изменении
+['start_date','end_date','partnerHidden'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', saveFiltersToStorage);
+});
+// Очищать storage при сбросе и выставлять неделю
+PartnerStatistics.resetFilters = function() {
+    clearFiltersStorage();
+    setDefaultWeek();
+    document.querySelectorAll('#partnerOptions input[type=checkbox]').forEach(c => c.checked = false);
+    document.getElementById('partner_all').checked = true;
+    this.updatePartnerTags();
+    this.updatePartnerHidden();
+    this.submitForm();
+};
+// Сохранять фильтры при применении
+PartnerStatistics.submitForm = (function(orig) {
+    return function() {
+        saveFiltersToStorage();
+        orig.apply(this, arguments);
+    };
+})(PartnerStatistics.submitForm);
+// Переопределяем updateTodayStats для показа только партнёров с активациями сегодня
+PartnerStatistics.updateTodayStats = function(data) {
+    let todayStatsHtml = `
+        <div class='d-flex justify-content-between align-items-center p-3 bg-info bg-opacity-10 rounded mb-3'>
+            <span class='fw-bold fs-5'>Общий итог за сегодня:</span>
+            <span class='badge bg-info fs-5'>${data.today_total}</span>
+        </div>
+    `;
+    // Только партнёры с активациями сегодня
+    const partnersWithToday = data.partners.filter(partner => (data.today_stats[partner] || 0) > 0);
+    if (partnersWithToday.length > 0) {
+        todayStatsHtml += partnersWithToday.map(partner => `
+            <div class='d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded'>
+                <span class='fw-bold'>${partner}</span>
+                <span class='badge bg-info fs-6'>${data.today_stats[partner] || 0}</span>
+            </div>
+        `).join('');
+    } else {
+        todayStatsHtml += `<div class='text-muted text-center'>Нет активаций сегодня</div>`;
+    }
+    document.getElementById('todayStats').innerHTML = todayStatsHtml;
+};
+// Гибридный модуль статистики и сравнения
+PartnerStatistics.updateHybridPeriodStats = function(data) {
+    // Сортировка по убыванию процента
+    let sortedPartners = [...data.partners];
+    if (data.partners.length > 1) {
+        sortedPartners.sort((a, b) => (data.period_percent[b] || 0) - (data.period_percent[a] || 0));
+    }
+    let html = `<div class='d-flex justify-content-between align-items-center p-3 bg-success bg-opacity-10 rounded mb-3'>
+        <span class='fw-bold fs-5'>Общий итог за период:</span>
+        <span class='badge bg-success fs-5'>${data.period_total}</span>
+    </div>`;
+    html += `<table class='table table-bordered text-center'>
+        <thead class='table-success'>
+            <tr>
+                <th>Партнёр</th>
+                <th>За период</th>
+                ${data.partners.length > 1 ? '<th>% от итога</th><th>Прогресс</th>' : ''}
+            </tr>
+        </thead>
+        <tbody>`;
+    sortedPartners.forEach(partner => {
+        const count = data.period_stats[partner] || 0;
+        const percent = data.period_percent[partner] || 0;
+        html += `<tr>
+            <td><strong>${partner}</strong></td>
+            <td><span class='badge bg-primary fs-6'>${count}</span></td>`;
+        if (data.partners.length > 1) {
+            html += `<td><span class='fw-bold'>${percent.toFixed(1)}%</span></td>
+                <td><div class='progress'><div class='progress-bar bg-info' style='width:${percent}%'>${percent.toFixed(1)}%</div></div></td>`;
+        }
+        html += `</tr>`;
+    });
+    html += `</tbody></table>`;
+    document.getElementById('hybridPeriodStats').innerHTML = html;
+};
+// Функция для преобразования даты к дд.мм.гг
+function formatDateDMY(dateStr) {
+    if (!dateStr) return '';
+    // Если уже дд.мм.гг — вернуть
+    if (/^\d{2}\.\d{2}\.\d{2}$/.test(dateStr)) return dateStr;
+    // Если дд.мм.гггг
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) return dateStr.slice(0,6) + dateStr.slice(8,10);
+    // Если гггг-мм-дд
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const [y,m,d] = dateStr.split('-');
+        return `${d}.${m}.${y.slice(2)}`;
+    }
+    // Если дд.мм.гггг
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) return dateStr.slice(0,6) + dateStr.slice(8,10);
+    return dateStr;
+}
+
+// Функция для получения значения из input-поля
+function getInputValue(id) {
+    const element = document.getElementById(id);
+    return element ? element.value : '';
+}
+
+// Функция для обновления заголовка периода
+function updatePeriodHeaderDates(startDate, endDate) {
+    const headerElement = document.getElementById('periodHeaderDates');
+    if (headerElement && startDate && endDate) {
+        const start = formatDateDMY(startDate);
+        const end = formatDateDMY(endDate);
+        headerElement.textContent = `${start} - ${end}`;
+    }
+}
+</script>
+{% endblock %} 

@@ -1,193 +1,149 @@
-{% extends "base.html" %}
+{% extends "admin/base_admin.html" %}
 
-{% block title %}Панель администратора{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
-{% block content %}
-<div class="container-fluid mt-4">
-    <div class="row">
+{% block admin_content %}
+<div class="page-header">
+    <div class="container-fluid">
+        <h1>Dashboard</h1>
+        <p>{{ g.user.username }} / Admin</p>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Stats Row -->
+    <div class="row mb-3">
+        <div class="col-3">
+            <div class="stat-box">
+                <i class="fas fa-users"></i>
+                <h4>{{ total_users }}</h4>
+                <p>Пользователи</p>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="stat-box">
+                <i class="fas fa-tags"></i>
+                <h4>{{ total_tariffs }}</h4>
+                <p>Тарифы</p>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="stat-box">
+                <i class="fas fa-dollar-sign"></i>
+                <h4>{{ total_payments }}</h4>
+                <p>Платежи</p>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="stat-box">
+                <i class="fas fa-key"></i>
+                <h4>{{ total_keys }}</h4>
+                <p>Ключи</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-3">
         <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h1 class="h3 mb-0">
-                        <i class="fas fa-cogs me-2"></i>
-                        Панель администратора
-                    </h1>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('admin.create_user') }}" class="btn btn-brand btn-sm">
+                    <i class="fas fa-user-plus me-1"></i>Новый пользователь
+                </a>
+                <a href="{{ url_for('admin.list_users') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-users me-1"></i>Все пользователи
+                </a>
+                <a href="{{ url_for('admin.create_tariff') }}" class="btn btn-brand btn-sm">
+                    <i class="fas fa-plus me-1"></i>Новый тариф
+                </a>
+                <a href="{{ url_for('admin.list_tariffs') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-tags me-1"></i>Все тарифы
+                </a>
+                <a href="{{ url_for('admin.assign_partner_manager') }}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-link me-1"></i>Назначить менеджера
+                </a>
+                <a href="{{ url_for('keys_management.keys_management_view') }}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-key me-1"></i>Управление ключами
+                </a>
+            </div>
+        
+                <a href="{{ url_for('admin.helpdesk_list') }}" class="btn btn-outline-info btn-sm">
+                    <i class="fas fa-headset me-1"></i>Хелпдеск
+                </a>
+        </div>
+    </div>
+
+    <!-- Tables Row -->
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">Последние пользователи</div>
+                <div class="card-body p-0">
+                    {% if recent_users %}
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="50">ID</th>
+                                    <th>Имя</th>
+                                    <th>Email</th>
+                                    <th width="80">Роль</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users[:5] %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td><small class="text-muted">{{ user.email or '-' }}</small></td>
+                                    <td><span class="badge bg-primary">{{ user.role }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-center text-muted p-3 mb-0">Нет данных</p>
+                    {% endif %}
                 </div>
-                <div class="card-body">
-                    <!-- Категории управления -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Пользователи</h5>
-                                </div>
-                                <div class="card-body">
-                                    <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary mb-2 w-100">
-                                        <i class="fas fa-user-plus me-2"></i>Создать пользователя
-                                    </a>
-                                    <a href="{{ url_for('admin.list_users') }}" class="btn btn-info mb-2 w-100">
-                                        <i class="fas fa-list me-2"></i>Просмотр пользователей
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Тарифы</h5>
-                                </div>
-                                <div class="card-body">
-                                    <a href="{{ url_for('admin.create_tariff') }}" class="btn btn-success mb-2 w-100">
-                                        <i class="fas fa-plus me-2"></i>Создать тариф
-                                    </a>
-                                    <a href="{{ url_for('admin.list_tariffs') }}" class="btn btn-warning mb-2 w-100">
-                                        <i class="fas fa-list me-2"></i>Просмотр тарифов
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <a href="{{ url_for('admin.assign_partner_manager') }}" class="btn btn-secondary w-100">
-                                <i class="fas fa-link me-2"></i>Назначить партнера менеджеру
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Статистика -->
-                    <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="card bg-primary text-white">
-                                <div class="card-body text-center">
-                                    <h4>{{ total_users }}</h4>
-                                    <p class="mb-0">Пользователей</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card bg-success text-white">
-                                <div class="card-body text-center">
-                                    <h4>{{ total_tariffs }}</h4>
-                                    <p class="mb-0">Тарифов</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card bg-info text-white">
-                                <div class="card-body text-center">
-                                    <h4>{{ total_payments }}</h4>
-                                    <p class="mb-0">Платежей</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card bg-warning text-white">
-                                <div class="card-body text-center">
-                                    <h4>{{ total_keys }}</h4>
-                                    <p class="mb-0">Ключей</p>
-                                </div>
-                            </div>
-                        </div>
-                            </div>
-
-                    <!-- Последние пользователи и платежи -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Последние пользователи</h5>
-                                </div>
-                                <div class="card-body">
-                                    {% if recent_users %}
-                            <div class="table-responsive">
-                                            <table class="table table-sm">
-                                                <thead>
-                                        <tr>
-                                                        <th>ID</th>
-                                                        <th>Имя</th>
-                                                        <th>Email</th>
-                                                        <th>Роль</th>
-                                                        <th>Действия</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                                    {% for user in recent_users %}
-                                        <tr>
-                                                        <td>{{ user.id }}</td>
-                                                        <td>{{ user.username }}</td>
-                                                        <td>{{ user.email or 'Не указан' }}</td>
-                                                        <td>
-                                                            <span class="badge bg-secondary">{{ user.role }}</span>
-                                                        </td>
-                                            <td>
-                                                            <div class="btn-group btn-group-sm" role="group">
-                                                                <a href="{{ url_for('admin.user_summary', user_id=user.id) }}" class="btn btn-outline-info btn-sm" title="Профиль">
-                                                                    <i class="fas fa-user"></i>
-                                                                </a>
-                                                                <a href="{{ url_for('admin.manage_keys', user_id=user.id) }}" class="btn btn-outline-warning btn-sm" title="Управление ключами">
-                                                                    <i class="fas fa-key"></i>
-                                                                </a>
-                                                                <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-outline-primary btn-sm" title="Редактировать">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </a>
-                                                            </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                                    {% else %}
-                                        <p class="text-muted">Нет пользователей</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-money-bill me-2"></i>Последние платежи</h5>
-                                </div>
-                                <div class="card-body">
-                                    {% if recent_payments %}
-                                        <div class="table-responsive">
-                                            <table class="table table-sm">
-                                                <thead>
-                                                    <tr>
-                                                        <th>ID</th>
-                                                        <th>Сумма</th>
-                                                        <th>Дата</th>
-                                                        <th>Статус</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for payment in recent_payments %}
-                                                    <tr>
-                                                        <td>{{ payment.id }}</td>
-                                                        <td>{{ payment.amount }}</td>
-                                                        <td>{{ payment.payment_date.strftime('%Y-%m-%d') if payment.payment_date else '' }}</td>
-                                                        <td>
-                                                            <span class="badge bg-{% if payment.processed %}success{% else %}warning{% endif %}">
-                                                                {{ 'Обработан' if payment.processed else 'В ожидании' }}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p class="text-muted">Нет платежей</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">Последние платежи</div>
+                <div class="card-body p-0">
+                    {% if recent_payments %}
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="50">ID</th>
+                                    <th>Сумма</th>
+                                    <th>Дата</th>
+                                    <th width="80">Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in recent_payments[:5] %}
+                                <tr>
+                                    <td>{{ payment.id }}</td>
+                                    <td>{{ payment.amount }} ₽</td>
+                                    <td><small>{{ payment.payment_date.strftime('%d.%m.%y') if payment.payment_date else '-' }}</small></td>
+                                    <td>
+                                        {% if payment.processed %}
+                                            <span class="badge bg-success">OK</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Wait</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-center text-muted p-3 mb-0">Нет данных</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Управление майнерами</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+        }
+
+        header p {
+            font-size: 1.2rem;
+        }
+
+        .miner-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .miner-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1rem;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .miner-card:hover {
+            background-color: #e0e0e0;
+        }
+
+        .miner-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .miner-card-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .miner-card-model {
+            font-size: 1rem;
+            color: #777;
+            margin-bottom: 0.25rem;
+        }
+
+        .miner-card-hashrate {
+            font-size: 1rem;
+            color: #777;
+        }
+
+        .miner-card-details {
+            display: none;
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        .miner-card.show .miner-card-details {
+            display: block;
+        }
+
+        .miner-card span {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .miner-card-checkbox {
+            margin-top: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+
+        .action-buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+color: #fff;
+            cursor: pointer;
+        }
+
+		.login-form {
+			max-width: 600px;
+			padding: 1rem;
+			margin: auto;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			border-radius: 8px;
+			background-color: #fff;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			text-align: center;
+		}
+
+		.login-form input {
+			display: block;
+			width: 90%; /* увеличиваем ширину поля ввода */
+			padding: 10px;
+			margin: 0 auto 15px; /* добавляем автоматический отступ слева и справа для центрирования поля ввода */
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			font-size: 16px;
+		}
+
+		.login-form button {
+			padding: 10px 20px;
+			border: none;
+			border-radius: 4px;
+			background-color: #4CAF50;
+			color: #fff;
+			cursor: pointer;
+			transition: 0.3s ease;
+			font-size: 16px;
+		}
+
+		.login-form button:hover {
+			background-color: #45a049;
+		}
+
+
+        @media screen and (max-width: 600px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .miner-card-title {
+                font-size: 1.2rem;
+            }
+
+            .miner-card-model,
+            .miner-card-hashrate {
+                font-size: 0.9rem;
+            }
+
+            .miner-card span {
+                font-size: 1rem;
+            }
+
+            .action-buttons {
+                padding: 1rem 0;
+            }
+
+            .action-buttons button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+			
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Форма входа -->
+    <div class="login-form" id="login-form">
+        <input type="email" id="email" required placeholder="Email">
+        <input type="password" id="password" required placeholder="Password">
+        <button type="submit" onclick="login(event)">Войти</button>
+    </div>
+	
+    <!-- Список майнеров -->
+    <div id="miners-list" style="display: none;">
+        <!-- Шапка -->
+        <header>
+            <h1>Управление майнерами</h1>
+            <p>Эффективно управляйте своими майнерами</p>
+        </header>
+
+        <!-- Контейнер для майнеров -->
+        <div class="miner-container">
+            <!-- Заголовок -->
+            <div class="miner-header">
+                <h2>Ваши майнеры</h2>
+            </div>
+            <!-- Список майнеров -->
+            <div id="miner-list"></div>
+
+        <!-- Кнопки действий -->
+        <div class="action-buttons">
+            <button onclick="performAction('reboot')">Reboot</button>
+            <button onclick="performAction('switchMode')">Сменить режим</button>
+            <button onclick="performAction('changePool')">Изменить пул</button>
+        </div>
+
+    </div>
+</div>
+
+    <script>
+	
+        // Функция для входа
+        async function login(event) {
+            event.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            try {
+                const response = await fetch('https://server.legionmining.site/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ email, password }),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const result = await response.json();
+                if (result.message === 'Logged in successfully') {
+                    localStorage.setItem("isLoggedIn", true); // Сохраняем статус в localStorage
+                    document.getElementById("login-form").style.display = "none";
+                    document.getElementById("miners-list").style.display = "block";
+                    getMinerData();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error during login');
+            }
+        }
+
+        // Функция для получения данных майнеров
+        async function getMinerData() {
+            try {
+                const response = await fetch("https://server.legionmining.site/api/get-miner-data", {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+
+                if (response.status === 401) {  // Unauthorized
+                    localStorage.removeItem("isLoggedIn");
+                    document.getElementById("login-form").style.display = "block";
+                    document.getElementById("miners-list").style.display = "none";
+                    return;
+                }
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const minerData = await response.json();
+                displayMinerData(minerData);
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Проверяем статус сессии при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function () {
+            const isLoggedIn = localStorage.getItem("isLoggedIn"); // Получаем статус из localStorage
+            if (isLoggedIn) {
+                document.getElementById("login-form").style.display = "none";
+                document.getElementById("miners-list").style.display = "block";
+                getMinerData();
+            } else {
+                document.getElementById("login-form").style.display = "block";
+                document.getElementById("miners-list").style.display = "none";
+            }
+        });
+
+
+        // Функция для отображения данных майнеров на странице
+        function displayMinerData(minerData) {
+            const minersList = document.getElementById("miner-list");
+            let html = '';
+            for (let data of minerData) {
+                html += `
+                <div class="miner-card">
+                    <div class="miner-card-header" onclick="toggleDetails(this)">
+                        <h3 class="miner-card-title">${data.pool_user}</h3>
+                        <div>
+                            <span class="miner-card-model">Модель: ${data.device_model}</span>
+                            <span class="miner-card-hashrate">Хешрейт: ${data.mhs_av} MHS</span>
+                        </div>
+                    </div>
+                    <div class="miner-card-details">
+                        <span>IP: ${data.miner_ip}</span>
+                        <span>Power: ${data.power}W</span>
+                        <span>POOL: ${data.pool_url}</span>
+                        <span>HS: ${data.hs_rt}</span>
+                        <span>Temperature: ${data.temperature}°C</span>
+                        <span>Fans: ${data.fan_speed_in} (internal) / ${data.fan_speed_out} (external)</span>
+                        <span>Mode: ${data.power_mode}</span>
+                        <span>Uptime: ${data.uptime_hours}h ${data.uptime_minutes}m</span>
+                        <span class="miner-card-key">Ключ: ${data.key}</span>
+                    </div>
+                    <input type="checkbox" class="miner-card-checkbox">
+                </div>`;
+            }
+            minersList.innerHTML = html;
+        }
+
+        // Функция для переключения отображения деталей майнера
+        function toggleDetails(headerElement) {
+            const cardElement = headerElement.parentNode;
+            cardElement.classList.toggle("show");
+        }
+
+
+        // Функция для проверки сессии и загрузки данных майнеров
+        async function checkSessionAndLoadData() {
+            try {
+                const response = await fetch("https://server.legionmining.site/check-session", {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const result = await response.json();
+
+                if (result.loggedIn) {
+                    document.getElementById("login-form").style.display = "none";
+                    document.getElementById("miners-list").style.display = "block";
+                    getMinerData();
+                } else {
+                    document.getElementById("login-form").style.display = "block";
+                    document.getElementById("miners-list").style.display = "none";
+                }
+
+            } catch (error) {
+                console.error('Error during session check:', error);
+            }
+        }
+
+        // Общая функция для выполнения действий
+        function performAction(actionType) {
+            const checkboxes = document.querySelectorAll('.miner-card-checkbox:checked');
+
+            checkboxes.forEach(checkbox => {
+                const cardElement = checkbox.closest('.miner-card');
+                const minerIp = cardElement.querySelector('.miner-card-details span:first-child').innerText.split(": ")[1];
+                const deviceModel = cardElement.querySelector('.miner-card-model').innerText.split(": ")[1];
+                const key = cardElement.querySelector('.miner-card-key').innerText.split(": ")[1];
+
+                const url = `https://control.legionmining.site/?ip=${minerIp}&key=${key}&device_model=${deviceModel}`;
+
+                // открываем новую вкладку с сгенерированным URL
+                window.open(url, '_blank');
+            });
+        }
+
+    </script>
+</body>
+
+</html>

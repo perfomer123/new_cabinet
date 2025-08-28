@@ -8091,9 +8091,9 @@ def pay():
     </nav>
     <div class="container">
         <div class="container-form">
-            <h1>Оплата ключа</h1>
+            <h1>Оплата</h1>
             <form method="post">
-                <label for="key">Введите ключ:</label>
+                <label for="key">Введите номер устройства:</label>
                 <input type="text" id="key" name="key" value="{{ key }}" required>
 
                 <label for="duration">Выберите период оплаты:</label>

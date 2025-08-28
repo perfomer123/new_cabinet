@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Создать пользователя - Сова Мониторинг{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-user-plus"></i> Создать пользователя</h3>
+            </div>
+            <div class="card-body">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle"></i> {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" id="createUserForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-user"></i> Имя пользователя *
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="username" 
+                                       name="username" 
+                                       placeholder="Введите имя пользователя" 
+                                       required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="role" class="form-label">
+                                    <i class="fas fa-user-tag"></i> Роль *
+                                </label>
+                                <select class="form-control" id="role" name="role" required>
+                                    <option value="">Выберите роль</option>
+                                    <option value="admin">Администратор</option>
+                                    <option value="supervisor">Супервайзер</option>
+                                    <option value="manager">Менеджер</option>
+                                    <option value="partner">Партнер</option>
+                                    <option value="user">Пользователь</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope"></i> Email
+                                </label>
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="email" 
+                                       name="email" 
+                                       placeholder="user@example.com">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">
+                                    <i class="fas fa-phone"></i> Телефон
+                                </label>
+                                <input type="tel" 
+                                       class="form-control" 
+                                       id="phone" 
+                                       name="phone" 
+                                       placeholder="+7 (___) ___-__-__">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock"></i> Пароль
+                                </label>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       placeholder="Введите пароль">
+                                <small class="form-text text-muted">
+                                    Если пароль не указан, пользователь сможет войти только по SMS
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="platform_id" class="form-label">
+                                    <i class="fas fa-mobile-alt"></i> ID платформы
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="platform_id" 
+                                       name="platform_id" 
+                                       placeholder="ID платформы">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">
+                            <i class="fas fa-sticky-note"></i> Заметки
+                        </label>
+                        <textarea class="form-control" 
+                                  id="notes" 
+                                  name="notes" 
+                                  rows="3" 
+                                  placeholder="Дополнительная информация о пользователе"></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.list_users') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Назад
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Создать пользователя
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/inputmask@5.0.6/dist/jquery.inputmask.min.js"></script>
+<script>
+    $(document).ready(function(){
+        // Маска для телефона
+        $('#phone').inputmask({
+            mask: "+7 (999) 999-99-99",
+            clearMaskOnLostFocus: false,
+            showMaskOnHover: false,
+            showMaskOnFocus: true
+        });
+        
+        // Валидация формы
+        $('#createUserForm').submit(function(e) {
+            const username = $('#username').val().trim();
+            const role = $('#role').val();
+            
+            if (!username) {
+                e.preventDefault();
+                alert('Имя пользователя обязательно');
+                $('#username').focus();
+                return false;
+            }
+            
+            if (!role) {
+                e.preventDefault();
+                alert('Роль обязательна');
+                $('#role').focus();
+                return false;
+            }
+            
+            // Проверка email если указан
+            const email = $('#email').val().trim();
+            if (email && !isValidEmail(email)) {
+                e.preventDefault();
+                alert('Неверный формат email');
+                $('#email').focus();
+                return false;
+            }
+        });
+        
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    });
+</script>
+{% endblock %} 

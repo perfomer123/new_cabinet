@@ -1,0 +1,150 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<style>
+    .products {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        padding: 20px;
+    }
+    .product {
+        flex-basis: 100%; /* Занимает всю ширину на мобильных */
+        max-width: 600px; /* Максимальная ширина для больших экранов */
+        margin: 10px auto; /* Автоматический отступ для центрирования */
+        box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Тень для карточки */
+        padding: 20px;
+        border-radius: 8px; /* Скругление углов */
+        background-color: #fff; /* Фон карточки */
+        display: flex;
+        flex-direction: column; /* Вертикальное расположение элементов */
+    }
+    .product-image {
+        width: 100%; /* Полная ширина контейнера */
+        height: auto;
+        border-radius: 8px;
+        overflow: hidden; /* Обрезает изображение по контуру блока */
+    }
+    .product-image img {
+        width: 100%; /* Ширина равна ширине контейнера */
+        height: auto;
+    }
+    .product-details {
+        padding-top: 10px;
+    }
+    .table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-radius: 8px;
+    }
+    th, td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 2px solid #eee;
+    }
+    th {
+        background-color: #eef;
+        color: #333;
+    }
+    .contact-info {
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
+        color: #fff;
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .contact-info p {
+        margin: 5px 0;
+    }
+    .contact-info a {
+        color: #cfd8dc;
+        text-decoration: none;
+    }
+    .working-hours {
+        margin-top: 10px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+    @media (min-width: 768px) {
+        .product {
+            flex-direction: row; /* Горизонтальное расположение элементов на больших экранах */
+            align-items: center; /* Центрирование элементов в блоке */
+        }
+        .product-details {
+            flex: 1; /* Занимает все доступное пространство */
+            padding-left: 20px; /* Отступ от картинки */
+        }
+        .product-image {
+            flex-basis: 40%; /* Ширина блока с изображением */
+        }
+    }
+</style>
+
+<!-- Секция товаров -->
+<div class="products">
+    <!-- Пример товара -->
+    <div class="product">
+        <div class="product-image">
+            <img src="{{ url_for('static', filename='Sova_logo.jpg') }}" alt="Монитор">
+        </div>
+        <div class="product-details">
+            <h2>Сова Мониторинг</h2>
+            <p>Устройство - ключ к простому управлению майнерами для каждого...</p>
+            <p>Цена: 7000 руб.</p>
+            <p>При покупке устройства включена подписка на 6 месяцев. Продление подписки осуществляется по указанным тарифам.</p>
+
+            <!-- Таблица прайс-листа -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Срок подписки</th>
+                        <th>Общая цена</th>
+                        <th>Цена в месяц</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1 год</td>
+                        <td>6000 руб.</td>
+                        <td>500 руб.</td>
+                    </tr>
+                    <tr>
+                        <td>6 месяцев</td>
+                        <td>3600 руб.</td>
+                        <td>600 руб.</td>
+                    </tr>
+                    <tr>
+                        <td>3 месяца</td>
+                        <td>1950 руб.</td>
+                        <td>650 руб.</td>
+                    </tr>
+                    <tr>
+                        <td>1 месяц</td>
+                        <td>700 руб.</td>
+                        <td>700 руб.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Информация для заказа -->
+            <div class="contact-info">
+                <p><strong>Легион Майнинг</strong></p>
+                <p>Для заказа свяжитесь с нами:</p>
+                <p>WhatsApp: +79149113332</p>
+                <p>Telegram/телефон: +79149113332</p>
+                <p><a href="https://t.me/LegionMining038">Telegram: LegionMining038</a></p>
+                <p>Адрес: г. Иркутск, пос. Молодёжный, ул. Солнечная д.1</p>
+            </div>
+            <!-- Время работы -->
+            <div class="working-hours">
+                <p>Время работы: с 10:00 до 19:00</p>
+            </div>
+        </div>
+    </div>
+    <!-- Можно добавить больше товаров аналогичным образом -->
+</div>
+{% endblock %}

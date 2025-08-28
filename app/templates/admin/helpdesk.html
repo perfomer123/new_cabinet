@@ -1,0 +1,81 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Хелпдеск - Cabinet{% endblock %}
+{% block page_title_text %}Хелпдеск{% endblock %}
+
+{% block admin_content %}
+<div class="container mt-3">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Тикеты обращений</h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Создан</th>
+              <th>Пользователь</th>
+              <th>Ключ</th>
+              <th>Тема</th>
+              <th>Непрочитанные</th>
+              <th></th>
+              <th>Контакт</th>
+              <th>Статус</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in (tickets_ext or []) %}
+            <tr>
+              <td>{{ t.id }}</td>
+              <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else '' }}</td>
+              <td>
+                {% if t.identifier %}<a href="/client/{{ t.identifier }}" target="_blank">{{ t.ext_user_id or t.identifier }}</a>{% else %}—{% endif %}
+              </td>
+              <td>
+                {% if t.key_value %}<a href="/key_access/{{ t.key_value }}" target="_blank">{{ t.key_value }}</a>{% else %}—{% endif %}
+              </td>
+              <td>{{ t.subject }}</td>
+              <td>
+                {% if t.unread_count > 0 %}<span class="badge bg-danger">{{ t.unread_count }}</span>{% else %}—{% endif %}
+              </td>
+              <td><small class="text-muted">Открыть для просмотра</small></td>
+              <td>{{ t.contact or '' }}</td>
+              <td>
+                {% if t.status == 'open' %}
+                  <span class="badge bg-secondary">Открыт</span>
+                {% elif t.status == 'in_progress' %}
+                  <span class="badge bg-warning text-dark">В работе</span>
+                {% elif t.status == 'closed' %}
+                  <span class="badge bg-success">Закрыт</span>
+                {% else %}
+                  <span class="badge bg-light text-dark">{{ t.status }}</span>
+                {% endif %}
+              </td>
+              <td>
+                <form method="post" class="d-flex gap-1">
+                  <input type="hidden" name="ticket_id" value="{{ t.id }}" />
+                  <select class="form-select form-select-sm" name="status">
+                    <option value="open" {% if t.status=='open' %}selected{% endif %}>Открыт</option>
+                    <option value="in_progress" {% if t.status=='in_progress' %}selected{% endif %}>В работе</option>
+                    <option value="closed" {% if t.status=='closed' %}selected{% endif %}>Закрыт</option>
+                  </select>
+                  <button class="btn btn-sm btn-primary" type="submit">Сохранить</button>
+                </form>
+                <a href="{{ url_for('admin.helpdesk_chat', ticket_id=t.id) }}" class="btn btn-sm btn-outline-secondary">Открыть чат</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="9" class="text-center p-4">Пока нет обращений</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

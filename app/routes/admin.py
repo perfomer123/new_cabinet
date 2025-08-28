@@ -5,6 +5,8 @@ from app.models.tariff import Tariff
 from app.models.payment import Payment
 from app.models.user_key import UserKey
 from app.models.user_operation import UserOperation
+from app.models.support_ticket import SupportTicket
+from app.models.support_message import SupportMessage
 from app import db
 from datetime import datetime
 import pandas as pd
@@ -83,8 +85,7 @@ def create_user():
             return redirect(url_for('admin.list_users'))
         except Exception as e:
             db.session.rollback()
-            flash(f'Ошибка при создании пользователя: {str(e)}', 'error')
-    
+            flash(f"Ошибка при создании пользователя: {str(e)}", "error")
     return render_template('admin/create_user.html')
 
 @admin_bp.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
@@ -705,3 +706,121 @@ def view_partner_dashboard(user_id):
     return render_template('partner/dashboard.html', 
                          data=data,
                          calculate_days_left=calculate_days_left) 
+
+
+@admin_bp.route('/helpdesk', methods=['GET', 'POST'])
+@auth_required
+@role_required('admin')
+def helpdesk_list():
+    """Список тикетов хелпдеска и смена статусов"""
+    if request.method == 'POST':
+        ticket_id = request.form.get('ticket_id')
+        new_status = request.form.get('status')
+        if ticket_id and new_status in ['open', 'in_progress', 'closed']:
+            ticket = SupportTicket.query.get(int(ticket_id))
+            if ticket:
+                ticket.status = new_status
+                db.session.commit()
+                flash('Статус тикета обновлен', 'success')
+        return redirect(url_for('admin.helpdesk_list'))
+
+    tickets = SupportTicket.query.order_by(SupportTicket.created_at.desc()).all()
+
+    # Подготовим данные из нашей базы для key fallback
+    keys_map = {k.id: k for k in UserKey.query.all()}
+
+    # Готовим расширенные данные по тикетам с подстановкой данных из /root/miner-data/file.db
+    enriched = []
+    import sqlite3
+    try:
+        conn = sqlite3.connect('/root/miner-data/file.db', timeout=30.0)
+        cur = conn.cursor()
+        for t in tickets:
+            # Определяем строковое значение ключа
+            key_value = getattr(t, 'key_value', None)
+            if not key_value and t.user_key_id and t.user_key_id in keys_map:
+                key_value = keys_map[t.user_key_id].key
+
+            # Достаём профиль из внешней БД по ключу
+            ext_user_id = None
+            email = None
+            phone = None
+            telegram = None
+            if key_value:
+                try:
+                    cur.execute(
+                        """
+                        SELECT u.id, u.email, u.phone_number, u.telegram_id
+                        FROM users u
+                        JOIN user_keys uk ON uk.user_id = u.id
+                        WHERE uk.key = ?
+                        LIMIT 1
+                        """,
+                        (key_value,),
+                    )
+                    row = cur.fetchone()
+                    if row:
+                        ext_user_id, email, phone, telegram = row
+                except Exception as e:
+                    pass
+
+            # Формируем identifier: email -> phone -> telegram
+            identifier = None
+            for v in (email, phone, telegram):
+                if v:
+                    identifier = str(v)
+                    break
+
+            enriched.append({
+                # Подсчёт непрочитанных сообщений от пользователя
+                'unread_count': SupportMessage.query.filter_by(
+                    ticket_id=t.id,
+                    author_type="user",
+                    read_by_admin=False
+                ).count(),
+                'id' : t.id,
+                'created_at': t.created_at,
+                'subject': t.subject,
+                'message': t.message,
+                'contact': t.contact,
+                'status': t.status,
+                'key_value': key_value,
+                'ext_user_id': ext_user_id,
+                'identifier': identifier,
+            })
+        conn.close()
+    except Exception as e:
+        # Если база недоступна — выводим без внешних данных
+        for t in tickets:
+            key_value = keys_map[t.user_key_id].key if t.user_key_id in keys_map else None
+            enriched.append({
+                'unread_count': 0,
+                # Подсчёт непрочитанных сообщений от пользователя
+                'unread_count': SupportMessage.query.filter_by(
+                    ticket_id=t.id,
+                    author_type="user",
+                    read_by_admin=False
+                ).count(),
+                'id' : t.id,
+                'created_at': t.created_at,
+                'subject': t.subject,
+                'message': t.message,
+                'contact': t.contact,
+                'status': t.status,
+                'key_value': key_value,
+                'ext_user_id': None,
+                'identifier': None,
+            })
+
+    return render_template('admin/helpdesk.html', tickets_ext=enriched)
+@admin_bp.route('/helpdesk/<int:ticket_id>')
+@auth_required
+@role_required('admin')
+
+def helpdesk_chat(ticket_id):
+    from app.models.support_ticket import SupportTicket
+    from app.models.support_message import SupportMessage
+    ticket = SupportTicket.query.get_or_404(ticket_id)
+    messages = SupportMessage.query.filter_by(ticket_id=ticket_id).order_by(SupportMessage.id.asc()).all()
+    return render_template('admin/helpdesk_chat.html', ticket=ticket, messages=messages)
+

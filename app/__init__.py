@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_socketio import SocketIO
 from flask_login import LoginManager
 from config import Config
 import os
@@ -9,6 +10,9 @@ import os
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# SocketIO for realtime features
+socketio = SocketIO(cors_allowed_origins="*", logger=True, engineio_logger=True, async_mode="threading")
 
 # Инициализация расширений
 db = SQLAlchemy()
@@ -21,6 +25,7 @@ def create_app(config_class=Config):
 
     # Инициализация расширений
     db.init_app(app)
+    socketio.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
@@ -69,4 +74,8 @@ def create_app(config_class=Config):
     # Импорт моделей для корректной работы миграций
     from app.models import User, Tariff, Payment, PartnerManagerAssociation, ManagerSupervisorAssociation, Earning, UserKey, UserOperation
     
+    # WebSocket namespaces
+    from . import ws_helpdesk
+    from . import ws_helpdesk_mobile
+
     return app 

@@ -1,0 +1,59 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<style>
+    .download-section {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap; /* Позволяет элементам переноситься на новую строку */
+    }
+    .download-option {
+        text-align: center;
+        margin: 10px;
+        flex: 1 1 200px; /* Разрешает элементам занимать дополнительное пространство и сжиматься до 200px */
+    }
+    .download-option img {
+        width: 100%;
+        max-width: 150px; /* Ограничивает максимальную ширину изображения */
+        height: auto;
+    }
+    @media (max-width: 768px) { /* Медиа-запрос для мобильных устройств */
+        .download-section {
+            flex-direction: column; /* Столбцовое расположение на малых экранах */
+        }
+        .download-option {
+            width: 80%; /* Ширину элемента делаем подходящей для мобильных устройств */
+            margin: 10px auto; /* Центрируем элементы */
+        }
+    }
+</style>
+
+<h1>Скачать монитор</h1>
+<p>Выберите платформу для скачивания:</p>
+<div class="download-section">
+    <!-- Ссылка на скачивание для iOS -->
+    <div class="download-option">
+        <a href="https://apps.apple.com/us/app/sova-mining-monitor/id6471456470?l=ru" target="_blank">
+            <img src="{{ url_for('static', filename='appstore.png') }}" alt="Скачать из App Store">
+        </a>
+        <div>iPhone</div>
+    </div>
+    
+    <!-- Ссылка на скачивание для Android -->
+    <div class="download-option">
+        <a href="https://play.google.com/store/apps/details?id=com.legionmining.sova" target="_blank">
+            <img src="{{ url_for('static', filename='android.png') }}" alt="Скачать из Google Play">
+        </a>
+        <div>Android</div>
+    </div>
+
+    <!-- Ссылка на скачивание APK -->
+    <div class="download-option">
+        <a href="{{ url_for('static', filename='sova_monitoring.apk') }}" target="_blank">
+            <img src="{{ url_for('static', filename='apk.jpg') }}" alt="Скачать APK">
+        </a>
+        <div>APK (для смартфонов без Google Play)</div>
+    </div>
+</div>
+{% endblock %}

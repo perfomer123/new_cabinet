@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика партнёров - SOVA MONITORING{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        Статистика партнёров
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Фильтры -->
+                    <form method="GET" class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label for="start_date" class="form-label">Дата начала</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" 
+                                   value="{{ start_date }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="end_date" class="form-label">Дата окончания</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" 
+                                   value="{{ end_date }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="partner" class="form-label">Партнёр</label>
+                            <select class="form-select" id="partner" name="partner">
+                                <option value="all">Все партнёры</option>
+                                {% for partner in partners %}
+                                <option value="{{ partner }}" {% if selected_partner == partner %}selected{% endif %}>
+                                    {{ partner }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter me-1"></i>
+                                    Применить фильтры
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Статистика -->
+                    <div class="row">
+                        {% for partner in partners %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-user me-2"></i>
+                                        {{ partner }}
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <div class="border-end">
+                                                <h5 class="text-primary">{{ period_stats.get(partner, 0) }}</h5>
+                                                <small class="text-muted">За период</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <h5 class="text-success">{{ today_stats.get(partner, 0) }}</h5>
+                                            <small class="text-muted">Сегодня</small>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if partner_details.get(partner) %}
+                                    <div class="mt-3">
+                                        <h6 class="text-muted">Детализация по дням:</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Дата</th>
+                                                        <th>Активации</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for detail in partner_details[partner] %}
+                                                    <tr>
+                                                        <td>{{ detail.activation_date }}</td>
+                                                        <td>
+                                                            <span class="badge bg-primary">{{ detail.activated_devices }}</span>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if not partners %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        За выбранный период нет данных о партнёрах
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Управление тарифами - Cabinet{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-tags me-2"></i>Управление тарифами
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTariffModal">
+                                <i class="fas fa-plus me-2"></i>Добавить тариф
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Название</th>
+                                    <th>Базовая цена</th>
+                                    <th>Партнер</th>
+                                    <th>Менеджер</th>
+                                    <th>Супервайзер</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tariff in tariffs %}
+                                <tr>
+                                    <td>{{ tariff.id }}</td>
+                                    <td>{{ tariff.name }}</td>
+                                    <td>{{ tariff.base_price }} ₽</td>
+                                    <td>{{ tariff.partner_initial_payment }} ₽</td>
+                                    <td>{{ tariff.manager_initial_payment }} ₽</td>
+                                    <td>{{ tariff.supervisor_initial_payment }} ₽</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.edit_tariff', tariff_id=tariff.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{{ url_for('admin.delete_tariff', tariff_id=tariff.id) }}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal для добавления тарифа -->
+<div class="modal fade" id="addTariffModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить тариф</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="tariffName" class="form-label">Название тарифа</label>
+                        <input type="text" class="form-control" id="tariffName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tariffDescription" class="form-label">Описание</label>
+                        <textarea class="form-control" id="tariffDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tariffPrice" class="form-label">Цена (₽)</label>
+                        <input type="number" class="form-control" id="tariffPrice" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tariffDuration" class="form-label">Длительность (дней)</label>
+                        <input type="number" class="form-control" id="tariffDuration" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary">Добавить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

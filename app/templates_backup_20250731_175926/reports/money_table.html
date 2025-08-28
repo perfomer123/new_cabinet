@@ -1,0 +1,864 @@
+{% extends "base.html" %}
+
+{% block title %}Финансовая отчетность - SOVA MONITORING{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .stats-container {
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: box-shadow 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card i {
+        font-size: 2rem;
+        color: #3b82f6;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0.5rem 0;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-change {
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    
+    .stat-change.positive {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .stat-change.negative {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+    
+    .stat-change.neutral {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    
+    .filters-section {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+    
+    .filters-section h5 {
+        color: #1e293b;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .table-container {
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #1e293b;
+        font-weight: 600;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .table tbody tr:nth-child(even) {
+        background-color: #f8fafc;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f1f5f9;
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .contact-icon {
+        margin-right: 0.5rem;
+    }
+    
+    .charts-section {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+    
+    .charts-section h5 {
+        color: #1e293b;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-bottom: 2rem;
+    }
+    
+    .comparison-section {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+    
+    .comparison-section h5 {
+        color: #1e293b;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .comparison-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .comparison-card h6 {
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .comparison-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .loading-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    @media (max-width: 768px) {
+        .stat-card {
+            padding: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+        }
+        
+        .table-responsive {
+            font-size: 0.9rem;
+        }
+        
+        .chart-container {
+            height: 250px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Индикатор загрузки -->
+<div class="loading" id="loading">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <p>Загрузка данных...</p>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">
+        <i class="fa-solid fa-coins me-2"></i>Финансовая отчетность
+    </h2>
+
+    <!-- Статистика -->
+    <div class="stats-container" id="stats-container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+        <div class="col">
+                <div class="stat-card">
+                    <i class="fa-solid fa-receipt"></i>
+                    <div class="stat-value">{{ payment_count }}</div>
+                    <div class="stat-label">Платежей</div>
+                    {% if payment_count_change %}
+                    <div class="stat-change {% if payment_count_change > 0 %}positive{% elif payment_count_change < 0 %}negative{% else %}neutral{% endif %}">
+                        <i class="fa-solid fa-{% if payment_count_change > 0 %}arrow-up{% elif payment_count_change < 0 %}arrow-down{% else %}minus{% endif %} me-1"></i>
+                        {{ payment_count_change|abs }}%
+                    </div>
+                    {% endif %}
+                </div>
+        </div>
+        <div class="col">
+                <div class="stat-card">
+                    <i class="fa-solid fa-ruble-sign"></i>
+                    <div class="stat-value">{{ total_amount }} ₽</div>
+                    <div class="stat-label">Общая сумма</div>
+                    {% if total_amount_change %}
+                    <div class="stat-change {% if total_amount_change > 0 %}positive{% elif total_amount_change < 0 %}negative{% else %}neutral{% endif %}">
+                        <i class="fa-solid fa-{% if total_amount_change > 0 %}arrow-up{% elif total_amount_change < 0 %}arrow-down{% else %}minus{% endif %} me-1"></i>
+                        {{ total_amount_change|abs }}%
+                    </div>
+                    {% endif %}
+                </div>
+        </div>
+        <div class="col">
+                <div class="stat-card">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <div class="stat-value">{{ average_amount|round(2) }} ₽</div>
+                    <div class="stat-label">Средний чек</div>
+                    {% if average_amount_change %}
+                    <div class="stat-change {% if average_amount_change > 0 %}positive{% elif average_amount_change < 0 %}negative{% else %}neutral{% endif %}">
+                        <i class="fa-solid fa-{% if average_amount_change > 0 %}arrow-up{% elif average_amount_change < 0 %}arrow-down{% else %}minus{% endif %} me-1"></i>
+                        {{ average_amount_change|abs }}%
+                    </div>
+                    {% endif %}
+                </div>
+        </div>
+        <div class="col">
+                <div class="stat-card">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <div class="stat-value">{{ processed_payments }} ₽</div>
+                    <div class="stat-label">Обработано</div>
+                    {% if processed_payments_change %}
+                    <div class="stat-change {% if processed_payments_change > 0 %}positive{% elif processed_payments_change < 0 %}negative{% else %}neutral{% endif %}">
+                        <i class="fa-solid fa-{% if processed_payments_change > 0 %}arrow-up{% elif processed_payments_change < 0 %}arrow-down{% else %}minus{% endif %} me-1"></i>
+                        {{ processed_payments_change|abs }}%
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сравнение с предыдущим периодом -->
+    <div class="comparison-section" id="comparison-section">
+        <h5><i class="fa-solid fa-chart-bar me-2"></i>Сравнение с предыдущим периодом</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="comparison-card">
+                    <h6><i class="fa-solid fa-calendar me-2"></i>Текущий период</h6>
+                    <div class="comparison-value">{{ start_date }} - {{ end_date }}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="comparison-card">
+                    <h6><i class="fa-solid fa-calendar-days me-2"></i>Предыдущий период</h6>
+                    <div class="comparison-value" id="previous-period">{{ previous_start_date }} - {{ previous_end_date }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="filters-section">
+        <h5><i class="fa-solid fa-filter me-2"></i>Фильтры</h5>
+        <form id="filters-form" class="row g-3">
+        <div class="col-md-3">
+                <label for="start_date" class="form-label">
+                    <i class="fa-regular fa-calendar me-2"></i>Дата начала
+                </label>
+                <input type="text" id="start_date" name="start_date" class="form-control" 
+                       placeholder="Выберите дату" value="{{ start_date }}">
+        </div>
+        <div class="col-md-3">
+                <label for="end_date" class="form-label">
+                    <i class="fa-regular fa-calendar me-2"></i>Дата окончания
+                </label>
+                <input type="text" id="end_date" name="end_date" class="form-control" 
+                       placeholder="Выберите дату" value="{{ end_date }}">
+        </div>
+        <div class="col-md-3">
+                <label for="processed" class="form-label">
+                    <i class="fa-solid fa-check-double me-2"></i>Статус
+                </label>
+                <select name="processed" id="processed" class="form-select">
+                    <option value="">Все платежи</option>
+                    <option value="Да" {% if processed_filter=='Да' %}selected{% endif %}>Обработанные</option>
+                    <option value="Нет" {% if processed_filter=='Нет' %}selected{% endif %}>Необработанные</option>
+            </select>
+        </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2" id="apply-filters">
+                    <i class="fa-solid fa-magnifying-glass me-2"></i>Применить
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="reset-filters" title="Сбросить фильтры">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+        </div>
+    </form>
+    </div>
+
+    <!-- Таблица -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th><i class="fa-solid fa-user me-2"></i>Пользователь</th>
+                        <th><i class="fa-solid fa-address-card me-2"></i>Контакт</th>
+                        <th><i class="fa-solid fa-layer-group me-2"></i>Тариф</th>
+                        <th><i class="fa-solid fa-ruble-sign me-2"></i>Сумма</th>
+                        <th><i class="fa-solid fa-calendar-plus me-2"></i>Дни</th>
+                        <th><i class="fa-solid fa-calendar-day me-2"></i>Дата</th>
+                        <th><i class="fa-solid fa-key me-2"></i>Ключ</th>
+                        <th><i class="fa-solid fa-hashtag me-2"></i>ID платежа</th>
+                        <th><i class="fa-solid fa-check me-2"></i>Статус</th>
+                </tr>
+            </thead>
+                <tbody id="payments-table-body">
+                {% for row in data %}
+                <tr>
+                    <td>
+                        {% if row.identifier %}
+                                <a href="/client/{{ row.identifier }}" class="text-decoration-none">
+                                    <i class="fa-solid fa-user me-1"></i>{{ row.user_id }}
+                                </a>
+                        {% else %}
+                                <i class="fa-solid fa-user me-1"></i>{{ row.user_id }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.contact_type == 'email' %}
+                                <i class="fas fa-envelope text-primary contact-icon"></i>
+                                <span>{{ row.identifier }}</span>
+                        {% elif row.contact_type == 'phone' %}
+                                <i class="fas fa-phone text-success contact-icon"></i>
+                                <span>{{ row.identifier }}</span>
+                        {% elif row.contact_type == 'telegram' %}
+                                <i class="fab fa-telegram text-info contact-icon"></i>
+                                <span>{{ row.identifier }}</span>
+                        {% else %}
+                                <i class="fa-solid fa-question text-muted contact-icon"></i>
+                                <span class="text-muted">Нет контакта</span>
+                        {% endif %}
+                    </td>
+                        <td><span class="badge bg-secondary">{{ row.tariff_id }}</span></td>
+                        <td><strong>{{ row.amount }} ₽</strong></td>
+                        <td><span class="badge bg-info">{{ row.extension_days }} дн.</span></td>
+                    <td>{{ row.payment_date }}</td>
+                    <td>
+                        {% if row.identifier %}
+                                <a href="/client/{{ row.identifier }}" class="text-decoration-none">
+                                    <code>{{ row.key }}</code>
+                                </a>
+                            {% else %}
+                                <code>{{ row.key }}</code>
+                            {% endif %}
+                        </td>
+                        <td><code>{{ row.payment_id }}</code></td>
+                        <td>
+                            {% if row.processed %}
+                                <span class="badge bg-success">
+                                    <i class="fa-solid fa-check me-1"></i>Обработан
+                                </span>
+                        {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="fa-solid fa-clock me-1"></i>В ожидании
+                                </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- Пагинация -->
+    <div id="pagination-container">
+        {% if total_pages > 1 %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page > 1 %}
+            <li class="page-item">
+                    <a class="page-link" href="{{ url_for('reports.money_table', page=page-1, sort_by=sort_by, order=order, processed=processed_filter, start_date=start_date, end_date=end_date) }}">
+                        <i class="fa-solid fa-chevron-left me-1"></i>Назад
+                    </a>
+            </li>
+            {% endif %}
+                
+            {% for p in range(1, total_pages+1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('reports.money_table', page=p, sort_by=sort_by, order=order, processed=processed_filter, start_date=start_date, end_date=end_date) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+                
+            {% if page < total_pages %}
+            <li class="page-item">
+                    <a class="page-link" href="{{ url_for('reports.money_table', page=page+1, sort_by=sort_by, order=order, processed=processed_filter, start_date=start_date, end_date=end_date) }}">
+                        Вперед<i class="fa-solid fa-chevron-right ms-1"></i>
+                    </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+        {% endif %}
+    </div>
+
+    <!-- Графики -->
+    <div class="charts-section">
+        <h5><i class="fa-solid fa-chart-bar me-2"></i>Аналитика платежей</h5>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="chart-container">
+                    <canvas id="paymentsChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+// Переменные для графиков
+let chartData = {
+    dates: {{ dates|tojson }},
+    amounts: {{ amounts|tojson }},
+    processedPayments: {{ processed_payments|int }},
+    unprocessedPayments: {{ unprocessed_payments|int }}
+};
+
+let paymentsChart, statusChart;
+
+// Инициализация датапикеров
+flatpickr("#start_date", {
+    dateFormat: "Y-m-d",
+    locale: "ru"
+});
+flatpickr("#end_date", {
+    dateFormat: "Y-m-d",
+    locale: "ru"
+});
+
+// Функция показа/скрытия загрузки
+function showLoading() {
+    document.getElementById('loading').style.display = 'flex';
+    document.getElementById('apply-filters').disabled = true;
+}
+
+function hideLoading() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('apply-filters').disabled = false;
+}
+
+// Функция обновления данных
+function updateData() {
+    showLoading();
+    
+    const formData = new FormData(document.getElementById('filters-form'));
+    const params = new URLSearchParams(formData);
+    
+    fetch('/money?' + params.toString(), {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Обновляем статистику
+        updateStats(data.stats);
+        
+        // Обновляем графики
+        updateCharts(data.charts);
+        
+        // Обновляем таблицу
+        updateTable(data.table);
+        
+        // Обновляем пагинацию
+        updatePagination(data.pagination);
+        
+        // Обновляем сравнение
+        updateComparison(data.comparison);
+        
+        // Обновляем URL без перезагрузки
+        const newUrl = '/money?' + params.toString();
+        window.history.pushState({}, '', newUrl);
+        
+        hideLoading();
+    })
+    .catch(error => {
+        console.error('Ошибка загрузки данных:', error);
+        hideLoading();
+        alert('Ошибка загрузки данных. Попробуйте еще раз.');
+    });
+}
+
+// Обновление статистики
+function updateStats(stats) {
+    const container = document.getElementById('stats-container');
+    container.innerHTML = `
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            <div class="col">
+                <div class="stat-card">
+                    <i class="fa-solid fa-receipt"></i>
+                    <div class="stat-value">${stats.payment_count}</div>
+                    <div class="stat-label">Платежей</div>
+                    ${stats.payment_count_change ? `
+                    <div class="stat-change ${stats.payment_count_change > 0 ? 'positive' : stats.payment_count_change < 0 ? 'negative' : 'neutral'}">
+                        <i class="fa-solid fa-${stats.payment_count_change > 0 ? 'arrow-up' : stats.payment_count_change < 0 ? 'arrow-down' : 'minus'} me-1"></i>
+                        ${Math.abs(stats.payment_count_change)}%
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <i class="fa-solid fa-ruble-sign"></i>
+                    <div class="stat-value">${stats.total_amount} ₽</div>
+                    <div class="stat-label">Общая сумма</div>
+                    ${stats.total_amount_change ? `
+                    <div class="stat-change ${stats.total_amount_change > 0 ? 'positive' : stats.total_amount_change < 0 ? 'negative' : 'neutral'}">
+                        <i class="fa-solid fa-${stats.total_amount_change > 0 ? 'arrow-up' : stats.total_amount_change < 0 ? 'arrow-down' : 'minus'} me-1"></i>
+                        ${Math.abs(stats.total_amount_change)}%
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <div class="stat-value">${stats.average_amount} ₽</div>
+                    <div class="stat-label">Средний чек</div>
+                    ${stats.average_amount_change ? `
+                    <div class="stat-change ${stats.average_amount_change > 0 ? 'positive' : stats.average_amount_change < 0 ? 'negative' : 'neutral'}">
+                        <i class="fa-solid fa-${stats.average_amount_change > 0 ? 'arrow-up' : stats.average_amount_change < 0 ? 'arrow-down' : 'minus'} me-1"></i>
+                        ${Math.abs(stats.average_amount_change)}%
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <div class="stat-value">${stats.processed_payments} ₽</div>
+                    <div class="stat-label">Обработано</div>
+                    ${stats.processed_payments_change ? `
+                    <div class="stat-change ${stats.processed_payments_change > 0 ? 'positive' : stats.processed_payments_change < 0 ? 'negative' : 'neutral'}">
+                        <i class="fa-solid fa-${stats.processed_payments_change > 0 ? 'arrow-up' : stats.processed_payments_change < 0 ? 'arrow-down' : 'minus'} me-1"></i>
+                        ${Math.abs(stats.processed_payments_change)}%
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Обновление сравнения
+function updateComparison(comparison) {
+    if (comparison) {
+        const container = document.getElementById('comparison-section');
+        container.innerHTML = `
+            <h5><i class="fa-solid fa-chart-bar me-2"></i>Сравнение с предыдущим периодом</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="comparison-card">
+                        <h6><i class="fa-solid fa-calendar me-2"></i>Текущий период</h6>
+                        <div class="comparison-value">${comparison.current_period}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="comparison-card">
+                        <h6><i class="fa-solid fa-calendar-days me-2"></i>Предыдущий период</h6>
+                        <div class="comparison-value">${comparison.previous_period}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Обновление графиков
+function updateCharts(charts) {
+    chartData = charts;
+    
+    // Обновляем линейный график
+    if (paymentsChart) {
+        paymentsChart.destroy();
+    }
+    
+    const ctx1 = document.getElementById('paymentsChart').getContext('2d');
+    paymentsChart = new Chart(ctx1, {
+        type: 'line',
+    data: {
+            labels: chartData.dates,
+        datasets: [{
+                label: 'Сумма платежей (₽)',
+                data: chartData.amounts,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Динамика платежей по дням'
+                }
+            },
+        scales: {
+            y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value + ' ₽';
+            }
+        }
+    }
+            }
+        }
+    });
+    
+    // Обновляем круговую диаграмму
+    if (statusChart) {
+        statusChart.destroy();
+    }
+    
+    const ctx2 = document.getElementById('statusChart').getContext('2d');
+    statusChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Обработано', 'В ожидании'],
+            datasets: [{
+                data: [chartData.processedPayments, chartData.unprocessedPayments],
+                backgroundColor: ['#10b981', '#f59e0b'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Статус платежей'
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Обновление таблицы
+function updateTable(table) {
+    const tbody = document.getElementById('payments-table-body');
+    tbody.innerHTML = table;
+}
+
+// Обновление пагинации
+function updatePagination(pagination) {
+    const container = document.getElementById('pagination-container');
+    container.innerHTML = pagination;
+}
+
+// Инициализация графиков при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    // График платежей по дням
+    const ctx1 = document.getElementById('paymentsChart').getContext('2d');
+    paymentsChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: chartData.dates,
+            datasets: [{
+                label: 'Сумма платежей (₽)',
+                data: chartData.amounts,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Динамика платежей по дням'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value + ' ₽';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Круговая диаграмма статусов
+    const ctx2 = document.getElementById('statusChart').getContext('2d');
+    statusChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Обработано', 'В ожидании'],
+            datasets: [{
+                data: [chartData.processedPayments, chartData.unprocessedPayments],
+                backgroundColor: ['#10b981', '#f59e0b'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Статус платежей'
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Обработчик формы фильтров
+    document.getElementById('filters-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        updateData();
+    });
+    
+    // Обработчик сброса фильтров
+    document.getElementById('reset-filters').addEventListener('click', function() {
+        document.getElementById('start_date').value = '';
+        document.getElementById('end_date').value = '';
+        document.getElementById('processed').value = '';
+        updateData();
+    });
+    
+    // Автоматическое обновление при изменении селекта
+    document.getElementById('processed').addEventListener('change', function() {
+        updateData();
+    });
+    
+    // Функция загрузки страницы для пагинации
+    window.loadPage = function(page) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('page', page);
+        
+        showLoading();
+        
+        fetch('/money?' + urlParams.toString(), {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateStats(data.stats);
+            updateCharts(data.charts);
+            updateTable(data.table);
+            updatePagination(data.pagination);
+            updateComparison(data.comparison);
+            
+            // Обновляем URL
+            const newUrl = '/money?' + urlParams.toString();
+            window.history.pushState({}, '', newUrl);
+            
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки страницы:', error);
+            hideLoading();
+            alert('Ошибка загрузки данных. Попробуйте еще раз.');
+        });
+    };
+});
+</script>
+{% endblock %} 

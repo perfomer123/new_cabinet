@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Список устройств - Cabinet{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-server me-2"></i>
+                        Список устройств
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>№</th>
+                                    <th>UID</th>
+                                    <th>IP</th>
+                                    <th>Внутренний IP</th>
+                                    <th>Порт</th>
+                                    <th>Время</th>
+                                    <th>Название ОС</th>
+                                    <th>Релиз ОС</th>
+                                    <th>Версия ядра</th>
+                                    <th>Версия клиента</th>
+                                    <th>Статус ключа</th>
+                                    <th>Устройство</th>
+                                    <th>Сервер</th>
+                                    <th>Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for device in devices_info %}
+                                <tr>
+                                    <td>{{ device['number'] }}</td>
+                                    <td>
+                                        <code class="text-primary">{{ device['uid'] }}</code>
+                                    </td>
+                                    <td>{{ device['ip'] }}</td>
+                                    <td>{{ device['internal_ip'] or 'N/A' }}</td>
+                                    <td>{{ device['port'] }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ device['timestamp'] }}</small>
+                                    </td>
+                                    <td>{{ device['distro_name'] }}</td>
+                                    <td>{{ device['distro_release'] }}</td>
+                                    <td>{{ device['kernel_version'] }}</td>
+                                    <td>{{ device['client_version'] }}</td>
+                                    <td>
+                                        {% set status = device['key_status'] %}
+                                        {% if status == 'active' %}
+                                            <span class="badge bg-success">{{ status }}</span>
+                                        {% elif status == 'inactive' %}
+                                            <span class="badge bg-danger">{{ status }}</span>
+                                        {% elif status == 'new' %}
+                                            <span class="badge bg-warning text-dark">{{ status }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="{% if device['any_mismatch'] %}text-danger fw-bold{% endif %}">
+                                        {{ device['device_count'] }}
+                                    </td>
+                                    <td class="{% if device['any_mismatch'] %}text-danger fw-bold{% endif %}">
+                                        {{ device['server_count'] }}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('key_access.key_access', key=device['uid']) }}" 
+                                               class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye me-1"></i>
+                                                Просмотр
+                                            </a>
+                                            <a href="{{ url_for('key_access.key_access_diagnostics', key=device['uid']) }}" 
+                                               class="btn btn-info btn-sm">
+                                                <i class="fas fa-stethoscope me-1"></i>
+                                                Диагностика
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

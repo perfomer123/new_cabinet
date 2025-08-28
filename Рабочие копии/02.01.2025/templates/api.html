@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Документация сервера мониторинга майнеров Legion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F0F0F0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #FFF;
+            box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        p, li {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Документация API сервера мониторинга майнеров Legion</h1>
+        <p>API сервера мониторинга майнеров Legion предоставляет набор функций, которые позволяют пользователям управлять своими данными и майнерами. API доступен по адресу с ssl: <a href="https://server.legionmining.site" target="_blank">https://server.legionmining.site</a> и без: http://194.67.205.202:8000</p>
+
+        <h2>1. API: /check-session</h2>
+        <ul>
+            <li><strong>Метод:</strong> GET</li>
+            <li><strong>Описание:</strong> Проверяет, является ли текущий пользователь аутентифицированным.</li>
+            <li><strong>Параметры:</strong> Отсутствуют</li>
+            <li><strong>Тип ответа:</strong> JSON.</li>
+            <li>loggedIn: boolean, обозначает, аутентифицирован пользователь или нет.</li>
+        </ul>
+
+        <h2>2. API: /create_key</h2>
+        <ul>
+            <li><strong>Метод:</strong> POST</li>
+            <li><strong>Описание:</strong> Создает ключ для пользователя.</li>
+            <li><strong>Параметры:</strong> Отсутствуют</li>
+            <li><strong>Тип ответа:</strong> JSON.</li>
+            <li>message: string, сообщение об успешном создании ключа или о возникшей ошибке.</li>
+            <li>key: string, ключ, который был создан для пользователя.</li>
+        </ul>
+
+        <h2>3. API: /get_keys</h2>
+        <ul>
+            <li><strong>Метод:</strong> GET</li>
+            <li><strong>Описание:</strong> Возвращает все ключи, связанные с текущим пользователем.</li>
+            <li><strong>Параметры:</strong> Отсутствуют</li>
+            <li><strong>Тип ответа:</strong> JSON, массив объектов, содержащих информацию о ключах. Каждый объект включает:</li>
+            <li>id: integer, ID ключа.</li>
+            <li>user_id: integer, ID пользователя.</li>
+            <li>key: string, значение ключа.</li>
+            <li>key_name: string, имя ключа.</li>
+        </ul>
+
+        <h2>4. API: /delete_key</h2>
+        <ul>
+            <li><strong>Метод:</strong> POST</li>
+            <li><strong>Описание:</strong> Удаляет указанный ключ.</li>
+            <li><strong>Параметры:</strong> key_id - ID ключа для удаления.</li>
+            <li><strong>Тип ответа:</strong> JSON.</li>
+            <li>message: string, сообщение об успешном удалении ключа или о возникшей ошибке.</li>
+        </ul>
+
+        <h2>5. API: /register</h2>
+        <ul>
+            <li><strong>Метод:</strong> POST</li>
+            <li><strong>Описание:</strong> Регистрация нового пользователя.</li>
+            <li><strong>Параметры:</strong> email, password.</li>
+            <li><strong>Тип ответа:</strong> JSON.</li>
+            <li>message: string, сообщение об успешной регистрации пользователя или о возникшей ошибке.</li>
+        </ul>
+
+        <h2>6. API: /login</h2>
+        <ul>
+            <li><strong>Метод:</strong> POST</li>
+            <li><strong>Описание:</strong> Аутентификация пользователя.</li>
+            <li><strong>Параметры:</strong> email, password.</li>
+            <li><strong>Тип ответа:</strong> JSON.</li>
+            <li>message: string, сообщение об успешной аутентификации пользователя или о возникшей ошибке.</li>
+        </ul>
+
+        <h2>7. API: /logout</h2>
+        <ul>
+            <li><strong>Метод:</strong> POST</li>
+            <li><strong>Описание:</strong> Выход пользователя из системы.</li>
+            <li><strong>Параметры:</strong> Отсутствуют</li>
+            <li><strong>Тип ответа:</strong> JSON.</li>
+            <li>message: string, сообщение об успешном выходе пользователя из системы или о возникшей ошибке.</li>
+        </ul>
+
+        <h2>8. API: /api/miner-data</h2>
+        <ul>
+            <li><strong>Метод:</strong> POST</li>
+            <li><strong>Описание:</strong> Сохраняет данные майнера.</li>
+            <li><strong>Параметры:</strong> JSON объект, включающий информацию о майнере (ключ, MAC-адрес, среднюю скорость хэширования, скорость хэширования в реальном времени, температуру, скорость вращения вентилятора, мощность, время работы и другие параметры).</li>
+            <li><strong>Тип ответа:</strong> JSON.</li>
+            <li>message: string, сообщение об успешном сохранении данных майнера или о возникшей ошибке.</li>
+        </ul>
+
+        <h2>9. API: /api/get-miner-data</h2>
+        <ul>
+            <li><strong>Метод:</strong> GET</li>
+            <li><strong>Описание:</strong> Возвращает данные о майнере для текущего авторизованного пользователя.</li>
+            <li><strong>Параметры запроса:</strong> Нет.</li>
+            <li><strong>Тип ответа:</strong> JSON, массив объектов, каждый из которых включает следующую информацию о майнере:</li>
+            <li>id: integer, идентификатор данных майнера в базе данных.</li>
+            <li>user_id: integer, идентификатор пользователя, связанного с данными майнера.</li>
+            <li>key: string, ключ пользователя, связанный с данными майнера.</li>
+            <li>miner_ip: string, IP-адрес майнера.</li>
+            <li>mac_address: string, MAC-адрес майнера.</li>
+            <li>mhs_av: float, средняя скорость хэширования.</li>
+            <li>hs_rt: float, скорость хэширования в реальном времени.</li>
+            <li>temperature: float, температура майнера.</li>
+            <li>fan_speed_in: float, скорость вращения входного вентилятора.</li>
+            <li>fan_speed_out: float, скорость вращения выходного вентилятора.</li>
+            <li>power: float, мощность майнера.</li>
+            <li>uptime_hours: integer, время работы майнера в часах.</li>
+            <li>uptime_minutes: integer, время работы майнера в минутах.</li>
+            <li>power_mode: string, режим мощности майнера.</li>
+            <li>power_limit: float, ограничение мощности майнера.</li>
+            <li>pool_url: string, URL пула майнера.</li>
+            <li>pool_user: string, пользователь пула майнера.</li>
+            <li>device_model: string, модель майнера.</li>
+            <li>timestamp: float, время последнего обновления данных.</li>
+            <li>key_name: string, имя ключа пользователя.</li>
+        </ul>
+        <p>Этот API-метод использует присоединение таблиц miner_data и user_keys по ключу пользователя. Он возвращает все данные майнера для текущего пользователя, включая дополнительную информацию о ключе из таблицы user_keys.</p>
+    </div>
+	
+<h1>Пример</h1>
+        <pre><code>
+                // Функция для входа
+                async function login(event) {
+                    event.preventDefault();
+                    const email = document.getElementById(&quot;email&quot;).value;
+                    const password = document.getElementById(&quot;password&quot;).value;
+                    try {
+                        const response = await fetch(&#39;https://server.legionmining.site/login&#39;, {
+                            method: &#39;POST&#39;,
+                            headers: { &#39;Content-Type&#39;: &#39;application/x-www-form-urlencoded&#39; },
+                            body: new URLSearchParams({ email, password }),
+                            credentials: &#39;include&#39;
+                        });
+
+                        if (!response.ok) throw new Error(&#39;Network response was not ok&#39;);
+
+                        const result = await response.json();
+                        if (result.message === &#39;Logged in successfully&#39;) {
+                            document.getElementById(&quot;login-form&quot;).style.display = &quot;none&quot;;
+                            document.getElementById(&quot;miners-list&quot;).style.display = &quot;block&quot;;
+                            getMinerData();
+                        } else {
+                            alert(result.message);
+                        }
+                    } catch (error) {
+                        console.error(&#39;Error:&#39;, error);
+                        alert(&#39;Error during login&#39;);
+                    }
+                }
+
+                // Функция для получения данных майнеров
+                async function getMinerData() {
+                    try {
+                        const response = await fetch(&quot;https://server.legionmining.site/api/get-miner-data&quot;, {
+                            method: &#39;GET&#39;,
+                            credentials: &#39;include&#39;,
+                            headers: { &#39;Content-Type&#39;: &#39;application/json&#39; },
+                        });
+
+                        if (!response.ok) throw new Error(&#39;Network response was not ok&#39;);
+
+                        const minerData = await response.json();
+                        displayMinerData(minerData);
+
+                    } catch (error) {
+                        console.error(&#39;Error:&#39;, error);
+                    }
+                }
+
+                // Функция для отображения данных майнеров на странице
+                function displayMinerData(minerData) {
+                    const minersList = document.getElementById(&quot;miner-list&quot;);
+                    let html = &#39;&#39;;
+                    for (let data of minerData) {
+                        html += `
+                        &lt;div class=&quot;miner-card&quot;&gt;
+                            &lt;div class=&quot;miner-card-header&quot; onclick=&quot;toggleDetails(this)&quot;&gt;
+                                &lt;h3 class=&quot;miner-card-title&quot;&gt;${data.pool_user}&lt;/h3&gt;
+                                &lt;div&gt;
+                                    &lt;span class=&quot;miner-card-model&quot;&gt;Модель: ${data.device_model}&lt;/span&gt;
+                                    &lt;span class=&quot;miner-card-hashrate&quot;&gt;Хешрейт: ${data.mhs_av} MHS&lt;/span&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;miner-card-details&quot;&gt;
+                                &lt;span&gt;IP: ${data.miner_ip}&lt;/span&gt;
+                                &lt;span&gt;Power: ${data.power}W&lt;/span&gt;
+                                &lt;span&gt;POOL: ${data.pool_url}&lt;/span&gt;
+                                &lt;span&gt;HS: ${data.hs_rt}&lt;/span&gt;
+                                &lt;span&gt;Temperature: ${data.temperature}°C&lt;/span&gt;
+                                &lt;span&gt;Fans: ${data.fan_speed_in} (internal) / ${data.fan_speed_out} (external)&lt;/span&gt;
+                                &lt;span&gt;Mode: ${data.power_mode}&lt;/span&gt;
+                                &lt;span&gt;Uptime: ${data.uptime_hours}h ${data.uptime_minutes}m&lt;/span&gt;
+                            &lt;/div&gt;
+                            &lt;input type=&quot;checkbox&quot; class=&quot;miner-card-checkbox&quot;&gt;
+                        &lt;/div&gt;`;
+                    }
+                    minersList.innerHTML = html;
+                }
+
+                // Функция для переключения отображения деталей майнера
+                function toggleDetails(headerElement) {
+                    const cardElement = headerElement.parentNode;
+                    cardElement.classList.toggle(&quot;show&quot;);
+                }
+
+                // Проверяем статус сессии при загрузке страницы
+                document.addEventListener(&quot;DOMContentLoaded&quot;, function () {
+                    checkSessionAndLoadData();
+                });
+
+                // Функция для проверки сессии и загрузки данных майнеров
+                async function checkSessionAndLoadData() {
+                    try {
+                        const response = await fetch(&quot;https://server.legionmining.site/check-session&quot;, {
+                            method: &#39;GET&#39;,
+                            credentials: &#39;include&#39;,
+                            headers: { &#39;Content-Type&#39;: &#39;application/json&#39; },
+                        });
+
+                        if (!response.ok) throw new Error(&#39;Network response was not ok&#39;);
+
+                        const result = await response.json();
+
+                        if (result.loggedIn) {
+                            document.getElementById(&quot;login-form&quot;).style.display = &quot;none&quot;;
+                            document.getElementById(&quot;miners-list&quot;).style.display = &quot;block&quot;;
+                            getMinerData();
+                        } else {
+                            document.getElementById(&quot;login-form&quot;).style.display = &quot;block&quot;;
+                            document.getElementById(&quot;miners-list&quot;).style.display = &quot;none&quot;;
+                        }
+
+                    } catch (error) {
+                        console.error(&#39;Error during session check:&#39;, error);
+                    }
+                }
+
+            </code></pre>
+</body>
+</html>

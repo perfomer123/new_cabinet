@@ -38,12 +38,13 @@
                                        placeholder="____" 
                                        required 
                                        maxlength="6"
-                                       autocomplete="one-time-code">
+                                       autocomplete="one-time-code"
+                                       inputmode="numeric">
                             </div>
-                            <div class="form-text">Введите 4-6 значный код из SMS</div>
+                            <div class="form-text">Введите 4–6‑значный код из SMS</div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <button type="submit" class="btn btn-brand w-100 mb-3">
                             <i class="fas fa-sign-in-alt me-2"></i>
                             Войти
                         </button>
@@ -62,16 +63,16 @@
 </div>
 
 <script>
-$(document).ready(function() {
-    $('#code').focus();
-    
-    // Автоматический переход к следующему полю при вводе
-    $('#code').on('input', function() {
-        var value = $(this).val();
-        if (value.length >= 4) {
-            $('#verifyForm').submit();
-        }
+document.addEventListener("DOMContentLoaded", function(){
+  var code = document.getElementById("code");
+  if (code) { code.focus(); }
+  var form = document.getElementById("verifyForm");
+  if (code && form) {
+    code.addEventListener("input", function(){
+      var v = code.value.trim();
+      if (v.length >= 4) { form.submit(); }
     });
+  }
 });
 </script>
-{% endblock %} 
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Подтверждение номера{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-primary">Подтверждение номера</h2>
+                        <p class="text-muted">Введите код, отправленный на ваш телефон</p>
+                    </div>
+
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {% for message in messages %}
+                                    <p class="mb-0">{{ message }}</p>
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" id="verifyForm">
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Код подтверждения</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-key"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control text-center" 
+                                       id="code" 
+                                       name="code" 
+                                       placeholder="____" 
+                                       required 
+                                       maxlength="6"
+                                       autocomplete="one-time-code">
+                            </div>
+                            <div class="form-text">Введите 4-6 значный код из SMS</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Войти
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Вернуться к вводу номера
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#code').focus();
+    
+    // Автоматический переход к следующему полю при вводе
+    $('#code').on('input', function() {
+        var value = $(this).val();
+        if (value.length >= 4) {
+            $('#verifyForm').submit();
+        }
+    });
+});
+</script>
+{% endblock %} 

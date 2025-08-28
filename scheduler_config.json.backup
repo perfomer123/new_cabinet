@@ -1,0 +1,49 @@
+{
+  "update_key_status": {
+    "name": "Обновление статуса ключей",
+    "description": "Проверяет и обновляет статус ключей каждый час",
+    "trigger": "interval",
+    "minutes": 90,
+    "enabled": true,
+    "autostart": false
+  },
+  "sync_keys": {
+    "name": "Синхронизация ключей",
+    "description": "Синхронизирует ключи с внешней базой данных каждую минуту",
+    "trigger": "interval",
+    "minutes": 1,
+    "enabled": true,
+    "autostart": false
+  },
+  "notify_user_about_key_status": {
+    "name": "Уведомления о статусе ключей",
+    "description": "Отправляет уведомления пользователям о сроке действия подписок в 19:00",
+    "trigger": "cron",
+    "hour": 19,
+    "minute": 0,
+    "enabled": true,
+    "autostart": false
+  },
+  "calculate_metrics_and_send": {
+    "name": "Ежедневный отчет",
+    "description": "Отправляет ежедневный отчет с метриками в 10:00",
+    "trigger": "cron",
+    "hour": 10,
+    "minute": 0,
+    "enabled": true,
+    "autostart": false,
+    "phone_numbers": [
+      "79086640880"
+    ],
+    "greetings": [
+      "Здравствуйте. Роман Михайлович!"
+    ],
+    "data_settings": {
+      "include_activations": true,
+      "include_extensions": true,
+      "include_total_amount": true,
+      "include_usd_rate": true,
+      "include_bitcoin_price": true
+    }
+  }
+}

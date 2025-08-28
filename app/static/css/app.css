@@ -1,0 +1,93 @@
+/* SOVA Cabinet — яркая тема */
+:root {
+  --brand-primary: #4f46e5;   /* Indigo 600 */
+  --brand-secondary: #22c55e; /* Emerald 500 */
+  --brand-accent: #f97316;    /* Orange 500 */
+  --brand-pink: #ec4899;      /* Pink 500 */
+  --brand-cyan: #22d3ee;      /* Cyan 400 */
+}
+
+/* Градиент шапки */
+.bg-brand {
+  background: linear-gradient(90deg, #4f46e5 0%, #22d3ee 50%, #ec4899 100%);
+}
+
+/* Navbar */
+.navbar {
+  --bs-navbar-padding-y: .5rem;
+}
+.navbar .navbar-brand { font-weight: 700; letter-spacing: .2px; }
+.navbar .nav-link { color: rgba(255,255,255,.9); }
+.navbar .nav-link:hover { color: #fff; }
+.navbar .nav-link.active {
+  color: #fff;
+  position: relative;
+}
+.navbar .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: .5rem; right: .5rem; bottom: .25rem;
+  height: 3px; border-radius: 3px;
+  background: #fff;
+  opacity: .9;
+}
+
+/* Типографика и общие элементы */
+body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+.card { border-radius: 12px; }
+.btn { border-radius: 10px; }
+.alert { border-radius: 10px; }
+
+/* Яркие кнопки бренда */
+.btn-brand {
+  color: #fff; border: 0;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-pink));
+}
+.btn-brand:hover { filter: brightness(1.05); color: #fff; }
+
+/* KPI-блоки (admin dashboard .stat-box) */
+.stat-box {
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  gap: .25rem; padding: 1rem 1rem; border-radius: 12px; color: #fff;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-cyan));
+  box-shadow: 0 .25rem 1rem rgba(79, 70, 229, .25);
+}
+.stat-box i { font-size: 1.25rem; opacity: .95; }
+.stat-box h4 { margin: 0; font-weight: 800; }
+.stat-box p { margin: 0; opacity: .95; }
+
+/* Таблицы */
+.card .table thead th {
+  position: sticky; top: 0; z-index: 1;
+  background: #fff; /* на светлой теме */
+}
+.table tbody tr:hover { background: rgba(79, 70, 229, 0.04); }
+
+/* Бейджи (плавные) */
+.badge.bg-warning { color: #7a5e00; background-color: #fff3cd; }
+.badge.bg-success { color: #0f5132; background-color: #d1fae5; }
+.badge.bg-primary { color: #1e3a8a; background-color: #dbeafe; }
+
+/* Футер — облегчить */
+footer.bg-dark { background: #0f172a !important; }
+footer .text-light { color: rgba(255,255,255,.9) !important; }
+
+/* Текстовый градиент */
+.text-gradient {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-cyan));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* Admin sidebar (light) */
+.admin-sidebar { background: #ffffff; }
+.admin-sidebar .nav-link{ color: #334155; padding:.6rem 1rem; border-left:3px solid transparent; display:block; }
+.admin-sidebar .nav-link:hover{ color:#111827; background: rgba(2,6,23,.04); }
+.admin-sidebar .nav-link.active{ color:#111827; border-left-color: var(--brand-primary); background: rgba(79,70,229,.06); }
+
+/* Offcanvas list-group variant */
+.admin-sidebar-nav .list-group-item{ background: #ffffff; color: #334155; border:0; border-left:3px solid transparent; }
+.admin-sidebar-nav .list-group-item:hover{ color:#111827; background: rgba(2,6,23,.04); }
+.admin-sidebar-nav .list-group-item.active{ color:#111827; border-left-color: var(--brand-primary); background: rgba(79,70,229,.06); }
+
+/* Loading overlay */
+.loading-overlay{ position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(1px); }

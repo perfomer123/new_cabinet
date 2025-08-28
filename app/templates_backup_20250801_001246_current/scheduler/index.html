@@ -1,0 +1,758 @@
+{% extends "base.html" %}
+
+{% block title %}Управление автозаданиями{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Управление автозаданиями
+                </h1>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-success" onclick="refreshStatus()">
+                        <i class="fas fa-sync-alt me-1"></i>
+                        Обновить
+                    </button>
+                </div>
+            </div>
+
+            <!-- Статус планировщика -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        Статус планировщика
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <div class="status-indicator me-3" id="scheduler-status">
+                                    <i class="fas fa-circle text-success"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Планировщик активен</h6>
+                                    <small class="text-muted">Все автозадания работают корректно</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <span class="badge bg-success">Работает</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Список автозаданий -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Автозадания
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Название</th>
+                                    <th>Описание</th>
+                                    <th>Статус</th>
+                                    <th>Следующий запуск</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobs-table-body">
+                                {% for job in jobs %}
+                                <tr data-job-id="{{ job.id }}">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="job-icon me-3">
+                                                {% if job.id == 'update_key_status' %}
+                                                    <i class="fas fa-key text-primary"></i>
+                                                {% elif job.id == 'sync_keys' %}
+                                                    <i class="fas fa-sync text-info"></i>
+                                                {% elif job.id == 'notify_user_about_key_status' %}
+                                                    <i class="fas fa-bell text-warning"></i>
+                                                {% elif job.id == 'calculate_metrics_and_send' %}
+                                                    <i class="fas fa-chart-line text-success"></i>
+                                                {% else %}
+                                                    <i class="fas fa-cog text-secondary"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <strong>{{ job.name }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ job.id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ job.description }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge job-status" data-job-id="{{ job.id }}">
+                                            {% if job.status == 'running' %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-play me-1"></i>
+                                                    Работает
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-pause me-1"></i>
+                                                    Остановлено
+                                                </span>
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="job-next-run" data-job-id="{{ job.id }}">
+                                            {% if job.next_run %}
+                                                <span class="text-muted">{{ job.next_run }}</span>
+                                            {% else %}
+                                                <span class="text-muted">Не запланировано</span>
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <div class="job-actions" data-job-id="{{ job.id }}">
+                                                {% if job.status == 'running' %}
+                                                    <button type="button" class="btn btn-outline-danger" 
+                                                            onclick="stopJob('{{ job.id }}')">
+                                                        <i class="fas fa-stop me-1"></i>
+                                                        Остановить
+                                                    </button>
+                                                {% else %}
+                                                    <button type="button" class="btn btn-outline-success"
+                                                            onclick="startJob('{{ job.id }}')">
+                                                        <i class="fas fa-play me-1"></i>
+                                                        Запустить
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <button type="button" class="btn btn-outline-primary" 
+                                                    onclick="runJobNow('{{ job.id }}')">
+                                                <i class="fas fa-bolt me-1"></i>
+                                                Сейчас
+                                            </button>
+                                            
+                                            <button type="button" class="btn btn-outline-info" 
+                                                    onclick="showLogs('{{ job.id }}')">
+                                                <i class="fas fa-file-alt me-1"></i>
+                                                Логи
+                                            </button>
+                                            
+                                            <button type="button" class="btn btn-outline-warning" 
+                                                    onclick="editJob('{{ job.id }}')">
+                                                <i class="fas fa-edit me-1"></i>
+                                                Настройки
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для логов -->
+<div class="modal fade" id="logsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Логи автозадания
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="logs-content">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для редактирования задания -->
+<div class="modal fade" id="editJobModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>
+                    Настройки автозадания
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editJobForm">
+                    <input type="hidden" id="editJobId" name="job_id">
+                    
+                    <div class="mb-3">
+                        <label for="editJobName" class="form-label">Название</label>
+                        <input type="text" class="form-control" id="editJobName" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editJobDescription" class="form-label">Описание</label>
+                        <textarea class="form-control" id="editJobDescription" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editJobTrigger" class="form-label">Тип запуска</label>
+                        <select class="form-select" id="editJobTrigger" name="trigger" onchange="updateTriggerFields()">
+                            <option value="interval">По интервалу</option>
+                            <option value="cron">По расписанию</option>
+                        </select>
+                    </div>
+                    
+                    <div id="intervalFields" class="mb-3">
+                        <label for="editJobMinutes" class="form-label">Интервал (минуты)</label>
+                        <input type="number" class="form-control" id="editJobMinutes" name="minutes" min="1" value="60">
+                    </div>
+                    
+                    <div id="cronFields" class="mb-3" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editJobHour" class="form-label">Час</label>
+                                <input type="number" class="form-control" id="editJobHour" name="hour" min="0" max="23" value="10">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editJobMinute" class="form-label">Минута</label>
+                                <input type="number" class="form-control" id="editJobMinute" name="minute" min="0" max="59" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editJobEnabled" name="enabled">
+                            <label class="form-check-label" for="editJobEnabled">
+                                Автозадание активно
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editJobAutostart" name="autostart">
+                            <label class="form-check-label" for="editJobAutostart">
+                                Автозапуск при старте приложения/сервера
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Специальные настройки для calculate_metrics_and_send -->
+                    <div id="metricsSettings" style="display: none;">
+                        <hr>
+                        <h6 class="mb-3">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Настройки отчетов
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Номера телефонов для отправки отчетов</label>
+                            <div id="phoneNumbersContainer">
+                                <div class="input-group mb-2">
+                                    <input type="tel" class="form-control phone-number-input" 
+                                           placeholder="+7 (999) 123-45-67" value="79086640880">
+                                    <input type="text" class="form-control greeting-input" 
+                                           placeholder="Приветствие (например: Здравствуйте, Роман Михайлович!)" 
+                                           value="Здравствуйте. Роман Михайлович!">
+                                    <button type="button" class="btn btn-outline-danger" onclick="removePhoneNumber(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addPhoneNumber()">
+                                <i class="fas fa-plus me-1"></i>
+                                Добавить номер
+                            </button>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Данные для включения в отчет</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeActivations" name="include_activations" checked>
+                                <label class="form-check-label" for="includeActivations">
+                                    Количество активаций
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeExtensions" name="include_extensions" checked>
+                                <label class="form-check-label" for="includeExtensions">
+                                    Количество продлений
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeTotalAmount" name="include_total_amount" checked>
+                                <label class="form-check-label" for="includeTotalAmount">
+                                    Общая сумма продлений
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeUsdRate" name="include_usd_rate" checked>
+                                <label class="form-check-label" for="includeUsdRate">
+                                    Курс USD к RUB
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeBitcoinPrice" name="include_bitcoin_price" checked>
+                                <label class="form-check-label" for="includeBitcoinPrice">
+                                    Курс Bitcoin
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="saveJobSettings()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.status-indicator {
+    font-size: 1.2rem;
+}
+
+.job-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    text-align: center;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+</style>
+
+<script>
+// Функции для работы с заданиями
+function startJob(jobId) {
+    const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
+    const actionsDiv = row.querySelector('.job-actions');
+    
+    // Показываем загрузку
+    actionsDiv.classList.add('loading');
+    
+    fetch(`{{ url_for("scheduler.start_job", job_id="") }}${jobId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateJobStatus(jobId, 'running');
+            showToast('Автозадание успешно запущено', 'success');
+        } else {
+            showToast(data.error || 'Ошибка запуска автозадания', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        showToast('Ошибка запуска автозадания', 'error');
+    })
+    .finally(() => {
+        actionsDiv.classList.remove('loading');
+    });
+}
+
+function stopJob(jobId) {
+    if (!confirm('Остановить автозадание?')) return;
+    
+    const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
+    const actionsDiv = row.querySelector('.job-actions');
+    
+    actionsDiv.classList.add('loading');
+    
+    fetch(`{{ url_for("scheduler.stop_job", job_id="") }}${jobId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateJobStatus(jobId, 'stopped');
+            showToast('Автозадание остановлено', 'success');
+        } else {
+            showToast(data.error || 'Ошибка остановки автозадания', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        showToast('Ошибка остановки автозадания', 'error');
+    })
+    .finally(() => {
+        actionsDiv.classList.remove('loading');
+    });
+}
+
+function runJobNow(jobId) {
+    if (!confirm('Запустить автозадание сейчас?')) return;
+    
+    const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
+    const actionsDiv = row.querySelector('.job-actions');
+    
+    actionsDiv.classList.add('loading');
+    
+    fetch(`{{ url_for("scheduler.run_job_now", job_id="") }}${jobId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Автозадание выполнено', 'success');
+        } else {
+            showToast(data.error || 'Ошибка выполнения автозадания', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        showToast('Ошибка выполнения автозадания', 'error');
+    })
+    .finally(() => {
+        actionsDiv.classList.remove('loading');
+    });
+}
+
+function updateJobStatus(jobId, status) {
+    const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
+    const statusBadge = row.querySelector('.job-status');
+    const actionsDiv = row.querySelector('.job-actions');
+    
+    // Обновляем статус
+    if (status === 'running') {
+        statusBadge.innerHTML = '<span class="badge bg-success"><i class="fas fa-play me-1"></i>Работает</span>';
+        actionsDiv.innerHTML = `
+            <button type="button" class="btn btn-outline-danger" onclick="stopJob('${jobId}')">
+                <i class="fas fa-stop me-1"></i>
+                Остановить
+            </button>
+        `;
+    } else {
+        statusBadge.innerHTML = '<span class="badge bg-secondary"><i class="fas fa-pause me-1"></i>Остановлено</span>';
+        actionsDiv.innerHTML = `
+            <button type="button" class="btn btn-outline-success" onclick="startJob('${jobId}')">
+                <i class="fas fa-play me-1"></i>
+                Запустить
+            </button>
+        `;
+    }
+}
+
+function refreshStatus() {
+    fetch('{{ url_for("scheduler.get_status") }}')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Статус обновлен:', data);
+            if (data.jobs) {
+                data.jobs.forEach(job => {
+                    updateJobStatus(job.id, job.status);
+                    updateNextRun(job.id, job.next_run);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка обновления статуса:', error);
+        });
+}
+
+function updateNextRun(jobId, nextRun) {
+    const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
+    const nextRunSpan = row.querySelector('.job-next-run');
+    
+    if (nextRun) {
+        nextRunSpan.innerHTML = `<span class="text-muted">${nextRun}</span>`;
+    } else {
+        nextRunSpan.innerHTML = '<span class="text-muted">Не запланировано</span>';
+    }
+}
+
+function showLogs(jobId) {
+    const modal = new bootstrap.Modal(document.getElementById('logsModal'));
+    const content = document.getElementById('logs-content');
+    
+    content.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+        </div>
+    `;
+    
+    modal.show();
+    
+    fetch(`{{ url_for("scheduler.get_logs", job_id="") }}${jobId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.logs && data.logs.length > 0) {
+                content.innerHTML = `
+                    <div class="logs-container" style="max-height: 400px; overflow-y: auto;">
+                        ${data.logs.map(log => `
+                            <div class="log-entry mb-2 p-2 bg-light rounded">
+                                <small class="text-muted">${log.timestamp}</small>
+                                <div class="log-message">${log.message}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="text-center text-muted">
+                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                        <p>Логи для этого автозадания отсутствуют</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            content.innerHTML = `
+                <div class="text-center text-danger">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <p>Ошибка загрузки логов</p>
+                    <small>${error.message}</small>
+                </div>
+            `;
+        });
+}
+
+function editJob(jobId) {
+    // Загружаем данные задания
+    fetch(`{{ url_for("scheduler.get_job_config", job_id="") }}${jobId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const job = data.job;
+                document.getElementById('editJobId').value = jobId;
+                document.getElementById('editJobName').value = job.name;
+                document.getElementById('editJobDescription').value = job.description;
+                document.getElementById('editJobTrigger').value = job.trigger;
+                document.getElementById('editJobEnabled').checked = job.enabled;
+                document.getElementById('editJobAutostart').checked = job.autostart || false; // Добавляем проверку на autostart
+                
+                if (job.trigger === 'interval') {
+                    document.getElementById('editJobMinutes').value = job.minutes || 60;
+                } else if (job.trigger === 'cron') {
+                    document.getElementById('editJobHour').value = job.hour || 10;
+                    document.getElementById('editJobMinute').value = job.minute || 0;
+                }
+                
+                // Показываем специальные настройки для calculate_metrics_and_send
+                const metricsSettings = document.getElementById('metricsSettings');
+                if (jobId === 'calculate_metrics_and_send') {
+                    metricsSettings.style.display = 'block';
+                    
+                    // Загружаем номера телефонов
+                    const phoneNumbers = job.phone_numbers || ['79086640880'];
+                    const container = document.getElementById('phoneNumbersContainer');
+                    container.innerHTML = '';
+                    
+                    phoneNumbers.forEach((phone, index) => {
+                        addPhoneNumber(phone, job.greetings ? job.greetings[index] : 'Здравствуйте. Роман Михайлович!');
+                    });
+                    
+                    // Загружаем настройки данных
+                    const dataSettings = job.data_settings || {
+                        include_activations: true,
+                        include_extensions: true,
+                        include_total_amount: true,
+                        include_usd_rate: true,
+                        include_bitcoin_price: true
+                    };
+                    
+                    document.getElementById('includeActivations').checked = dataSettings.include_activations !== false;
+                    document.getElementById('includeExtensions').checked = dataSettings.include_extensions !== false;
+                    document.getElementById('includeTotalAmount').checked = dataSettings.include_total_amount !== false;
+                    document.getElementById('includeUsdRate').checked = dataSettings.include_usd_rate !== false;
+                    document.getElementById('includeBitcoinPrice').checked = dataSettings.include_bitcoin_price !== false;
+                } else {
+                    metricsSettings.style.display = 'none';
+                }
+                
+                updateTriggerFields();
+                
+                const modal = new bootstrap.Modal(document.getElementById('editJobModal'));
+                modal.show();
+            } else {
+                showToast('Ошибка загрузки настроек', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showToast('Ошибка загрузки настроек', 'error');
+        });
+}
+
+function updateTriggerFields() {
+    const trigger = document.getElementById('editJobTrigger').value;
+    const intervalFields = document.getElementById('intervalFields');
+    const cronFields = document.getElementById('cronFields');
+    
+    if (trigger === 'interval') {
+        intervalFields.style.display = 'block';
+        cronFields.style.display = 'none';
+    } else {
+        intervalFields.style.display = 'none';
+        cronFields.style.display = 'block';
+    }
+}
+
+function saveJobSettings() {
+    const form = document.getElementById('editJobForm');
+    const formData = new FormData(form);
+    const jobId = formData.get('job_id');
+    
+    const data = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        trigger: formData.get('trigger'),
+        enabled: formData.get('enabled') === 'on',
+        autostart: formData.get('autostart') === 'on', // Добавляем autostart
+        minutes: formData.get('minutes'),
+        hour: formData.get('hour'),
+        minute: formData.get('minute')
+    };
+    
+    // Добавляем специальные настройки для calculate_metrics_and_send
+    if (jobId === 'calculate_metrics_and_send') {
+        const phoneNumbers = [];
+        const greetings = [];
+        const phoneInputs = document.querySelectorAll('.phone-number-input');
+        const greetingInputs = document.querySelectorAll('.greeting-input');
+        
+        phoneInputs.forEach((input, index) => {
+            if (input.value.trim()) {
+                phoneNumbers.push(input.value.trim());
+                greetings.push(greetingInputs[index] ? greetingInputs[index].value.trim() : 'Здравствуйте. Роман Михайлович!');
+            }
+        });
+        
+        data.phone_numbers = phoneNumbers;
+        data.greetings = greetings;
+        data.data_settings = {
+            include_activations: document.getElementById('includeActivations').checked,
+            include_extensions: document.getElementById('includeExtensions').checked,
+            include_total_amount: document.getElementById('includeTotalAmount').checked,
+            include_usd_rate: document.getElementById('includeUsdRate').checked,
+            include_bitcoin_price: document.getElementById('includeBitcoinPrice').checked
+        };
+    }
+    
+    fetch(`{{ url_for("scheduler.update_job_config", job_id="") }}${jobId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Настройки сохранены', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('editJobModal')).hide();
+            // Обновляем отображение в таблице
+            const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
+            const nameCell = row.querySelector('strong');
+            const descCell = row.querySelector('.text-muted');
+            nameCell.textContent = data.job.name;
+            descCell.textContent = data.job.description;
+        } else {
+            showToast(data.error || 'Ошибка сохранения настроек', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        showToast('Ошибка сохранения настроек', 'error');
+    });
+}
+
+function addPhoneNumber(phoneNumber = '', greeting = 'Здравствуйте. Роман Михайлович!') {
+    const container = document.getElementById('phoneNumbersContainer');
+    const div = document.createElement('div');
+    div.className = 'input-group mb-2';
+    div.innerHTML = `
+        <input type="tel" class="form-control phone-number-input" 
+               placeholder="+7 (999) 123-45-67" value="${phoneNumber}">
+        <input type="text" class="form-control greeting-input" 
+               placeholder="Приветствие (например: Здравствуйте, Роман Михайлович!)" 
+               value="${greeting}">
+        <button type="button" class="btn btn-outline-danger" onclick="removePhoneNumber(this)">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    container.appendChild(div);
+}
+
+function removePhoneNumber(button) {
+    const container = document.getElementById('phoneNumbersContainer');
+    if (container.children.length > 1) {
+        button.closest('.input-group').remove();
+    } else {
+        showToast('Должен быть указан хотя бы один номер телефона', 'warning');
+    }
+}
+
+function showToast(message, type = 'info') {
+    // Простая реализация уведомлений
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 5000);
+}
+
+// Автообновление статуса каждые 30 секунд
+setInterval(refreshStatus, 30000);
+</script>
+{% endblock %} 

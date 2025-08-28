@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}Клиент {{ user_info.email if 'email' in user_info else user_info.phone_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Заголовок -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0 text-gray-800">
+                    <i class="fas fa-user fa-fw"></i>
+                    Информация о клиенте
+                </h1>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left fa-fw"></i>
+                    Назад
+                </a>
+            </div>
+            <h2 class="h4 text-center text-gray-600 mt-2">
+                {{ user_info.email if 'email' in user_info else user_info.phone_number }}
+            </h2>
+        </div>
+    </div>
+
+    <!-- Информация о клиенте -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle fa-fw"></i>
+                        Основная информация
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% if 'phone_number' in user_info %}
+                            <p><strong>Телефон:</strong> {{ user_info.phone_number }}</p>
+                            {% endif %}
+                            {% if 'email' in user_info %}
+                            <p><strong>Email:</strong> {{ user_info.email }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Пароль:</strong> {{ user_info.password }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ключи клиента -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-key fa-fw"></i>
+                        Ключи клиента
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if not client_data.empty %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="keysTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Ключ</th>
+                                    <th>Название</th>
+                                    <th>Дата начала</th>
+                                    <th>Дата окончания</th>
+                                    <th>Статус</th>
+                                    <th>Тариф</th>
+                                    <th>Асики</th>
+                                    <th>Статус устройства</th>
+                                    <th>Вход</th>
+                                    <th>Продлить</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for idx, row in client_data.iterrows() %}
+                                <tr>
+                                    <td><code>{{ row.key }}</code></td>
+                                    <td>{{ row.key_name or 'Без названия' }}</td>
+                                    <td>{{ row.start_date or 'Не указана' }}</td>
+                                    <td>{{ row.end_date or 'Не указана' }}</td>
+                                    <td>
+                                        {{ row.status }}
+                                    </td>
+                                    <td>{{ row.tariff_name or 'Без тарифа' }}</td>
+                                    <td>
+                                        <!-- Две ссылки (Активные / Неактивные), обе открывают одно и то же модальное окно -->
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#asicModal-{{ idx }}"
+                                           class="text-success mr-2">A: {{ row.asic_active_count }}</a>
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#asicModal-{{ idx }}"
+                                           class="text-danger">N: {{ row.asic_inactive_count }}</a>
+                                    </td>
+                                    <td>
+                                        <span class="status-circle status-{{ row.online_status.lower() }}"></span>
+                                        {{ row.online_status }}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('key_access.key_access', key=row.key) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-sign-in-alt fa-fw"></i>
+                                            Войти
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#extendModal-{{ idx }}">
+                                            <i class="fas fa-plus fa-fw"></i>
+                                            Продлить
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-key fa-3x text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">У клиента нет ключей</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- История платежей -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-history fa-fw"></i>
+                        История платежей
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if not client_payments.empty %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="paymentsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Сумма</th>
+                                    <th>Дней продления</th>
+                                    <th>Ключ</th>
+                                    <th>ID платежа</th>
+                                    <th>Аккаунт</th>
+                                    <th>Обработан</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for idx, payment in client_payments.iterrows() %}
+                                <tr>
+                                    <td>{{ payment.payment_date.strftime('%d.%m.%Y %H:%M') if payment.payment_date else 'Не указана' }}</td>
+                                    <td>{{ "%.2f"|format(payment.amount) }} ₽</td>
+                                    <td>{{ payment.extension_days }}</td>
+                                    <td><code>{{ payment.key }}</code></td>
+                                    <td>
+                                        {% if payment.payment_id == 'manual_extension' %}
+                                            Ручное продление
+                                        {% else %}
+                                            {{ payment.payment_id }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.is_foreign %}
+                                            <span class="text-danger">⚠️ user_id: {{ payment.user_id }}</span>
+                                        {% else %}
+                                            <span class="text-success">Текущий</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ 'Да' if payment.processed else 'Нет' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-3x text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">История платежей пуста</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Партнёры -->
+    {% if not partner_keys_df.empty %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-handshake fa-fw"></i>
+                        Партнёры
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="partnersTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Ключ</th>
+                                    <th>Партнёр</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for idx, partner in partner_keys_df.iterrows() %}
+                                <tr>
+                                    <td><code>{{ partner.key }}</code></td>
+                                    <td>{{ partner.partner_name }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Модальные окна для устройств -->
+{% for idx, row in client_data.iterrows() %}
+<div class="modal fade" id="asicModal-{{ idx }}" tabindex="-1" role="dialog"
+     aria-labelledby="asicModalLabel-{{ idx }}" aria-hidden="true">
+  <div class="modal-dialog modal-xl" style="max-width: 90%;" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="asicModalLabel-{{ idx }}">
+            <i class="fas fa-server fa-fw"></i>
+            Устройства (Asics)
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        {% if row.device_models is sequence and row.device_models|length > 0 %}
+          <!-- Вкладки: Активные / Неактивные -->
+          <ul class="nav nav-tabs" id="asicTab-{{ idx }}" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="active-tab-{{ idx }}" data-bs-toggle="tab"
+                 href="#active-{{ idx }}" role="tab"
+                 aria-controls="active-{{ idx }}" aria-selected="true">
+                 <i class="fas fa-check-circle fa-fw"></i>
+                 Активные ({{ row.asic_active_count }})
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="inactive-tab-{{ idx }}" data-bs-toggle="tab"
+                 href="#inactive-{{ idx }}" role="tab"
+                 aria-controls="inactive-{{ idx }}" aria-selected="false">
+                 <i class="fas fa-times-circle fa-fw"></i>
+                 Неактивные ({{ row.asic_inactive_count }})
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="asicTabContent-{{ idx }}">
+            <!-- Вкладка Активные -->
+            <div class="tab-pane fade show active pt-3" id="active-{{ idx }}"
+                 role="tabpanel" aria-labelledby="active-tab-{{ idx }}">
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Модель</th>
+                      <th>Хешрейт</th>
+                      <th>Температура</th>
+                      <th>Вентиляторы</th>
+                      <th>Мощность</th>
+                      <th>Время работы</th>
+                      <th>Статус</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for device in row.device_models %}
+                    {% if device.status == 'Активный' %}
+                    <tr>
+                      <td>{{ loop.index }}</td>
+                      <td>{{ device.device_model }}</td>
+                      <td>{{ "%.2f"|format(device.mhs_av) }} MH/s</td>
+                      <td>{{ device.temperature }}°C</td>
+                      <td>{{ device.fan_speed_in }}/{{ device.fan_speed_out }}%</td>
+                      <td>{{ device.power }}W</td>
+                      <td>{{ device.uptime_hours }}ч {{ device.uptime_minutes }}м</td>
+                      <td><span class="badge bg-success">{{ device.status }}</span></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Вкладка Неактивные -->
+            <div class="tab-pane fade pt-3" id="inactive-{{ idx }}"
+                 role="tabpanel" aria-labelledby="inactive-tab-{{ idx }}">
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Модель</th>
+                      <th>Хешрейт</th>
+                      <th>Температура</th>
+                      <th>Вентиляторы</th>
+                      <th>Мощность</th>
+                      <th>Время работы</th>
+                      <th>Статус</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for device in row.device_models %}
+                    {% if device.status == 'Отключенный' %}
+                    <tr>
+                      <td>{{ loop.index }}</td>
+                      <td>{{ device.device_model }}</td>
+                      <td>{{ "%.2f"|format(device.mhs_av) }} MH/s</td>
+                      <td>{{ device.temperature }}°C</td>
+                      <td>{{ device.fan_speed_in }}/{{ device.fan_speed_out }}%</td>
+                      <td>{{ device.power }}W</td>
+                      <td>{{ device.uptime_hours }}ч {{ device.uptime_minutes }}м</td>
+                      <td><span class="badge bg-danger">{{ device.status }}</span></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-server fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Устройства не найдены</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Модальные окна для продления ключей -->
+{% for idx, row in client_data.iterrows() %}
+<div class="modal fade" id="extendModal-{{ idx }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus fa-fw"></i>
+                    Продлить ключ {{ row.key }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="extend_key" value="{{ row.key }}">
+                    <div class="form-group">
+                        <label>Продлить на:</label>
+                        <select name="extend_months" class="form-control" required>
+                            <option value="1">1 месяц</option>
+                            <option value="3">3 месяца</option>
+                            <option value="6">6 месяцев</option>
+                            <option value="12">12 месяцев</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save fa-fw"></i>
+                        Продлить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+.status-circle {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+.status-online {
+    background-color: #28a745;
+}
+.status-offline {
+    background-color: #6c757d;
+}
+.status-unknown {
+    background-color: #ffc107;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // Инициализация DataTables
+    $('#keysTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Russian.json"
+        }
+    });
+    
+    $('#paymentsTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Russian.json"
+        },
+        "order": [[0, "desc"]]
+    });
+    
+    $('#partnersTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Russian.json"
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -45,18 +45,32 @@ def main():
             logger.info("Создана папка instance")
         
         # Импортируем и запускаем приложение
-        from app import create_app
+        from app import create_app, socketio
+        import app.ws_helpdesk
+        import app.ws_helpdesk_mobile
         app = create_app()
+
+        # Включаем авто‑перезагрузку шаблонов и отключаем кэш статики,
+        # чтобы правки админки сразу отображались без рестартов.
+        try:
+            app.config['TEMPLATES_AUTO_RELOAD'] = True
+            app.jinja_env.auto_reload = True
+            # Не кэшировать статику (CSS/JS) в dev/ops режимах
+            app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+        except Exception:
+            pass
         
         logger.info("Приложение успешно инициализировано")
         logger.info("Сервер запускается на http://0.0.0.0:5023")
         
         # Запускаем приложение
-        app.run(
+        socketio.run(app,
             host='0.0.0.0',
             port=5023,
-            debug=False,
-            threaded=True
+            debug=True,
+            use_reloader=False,
+            allow_unsafe_werkzeug=True,
+            
         )
         
     except KeyboardInterrupt:

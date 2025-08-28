@@ -1,0 +1,103 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Чат тикета #{{ ticket.id }} - Helpdesk{% endblock %}
+{% block page_title_text %}Чат тикета #{{ ticket.id }}{% endblock %}
+{% block admin_content %}
+<div class="container py-2" style="max-width: 900px;">
+  <div class="card shadow-sm">
+    <div class="card-body" id="messages" style="height: 420px; overflow-y:auto; background:#f9fafb;"></div>
+    <div class="card-footer bg-white">
+      <div class="input-group">
+        <input id="msg" type="text" class="form-control" placeholder="Ваш ответ..." />
+        <button id="send" class="btn btn-primary">Отправить</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+<script>
+const ticketId = {{ ticket.id }};
+const messagesEl = document.getElementById('messages');
+const msgInput = document.getElementById('msg');
+const sendBtn = document.getElementById('send');
+
+function appendMessage(m) {
+  const wrap = document.createElement('div');
+  wrap.className = 'mb-2';
+  const who = m.author_type === 'admin' ? 'Админ' : 'Пользователь';
+  wrap.innerHTML = `<div class="small text-muted">${who} • ${m.created_at||''}</div><div class="p-2 rounded bg-light border">${(m.text||'').replaceAll('<','&lt;')}</div>`;
+  messagesEl.appendChild(wrap);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+async function loadHistory() {
+  try {
+    const resp = await fetch(`/api/helpdesk/tickets/${ticketId}/messages`, {credentials: 'include'});
+    const data = await resp.json();
+    (data.messages||[]).forEach(appendMessage);
+  } catch (e) {
+    console.error('Failed to load history:', e);
+  }
+}
+
+loadHistory();
+
+// Socket.IO
+const token = (document.cookie.match(/(?:^|; )token=([^;]+)/)||[])[1] || '';
+const url = '/helpdesk';
+const socket = io(url, {transports:['websocket','polling'], query: {token}});
+
+socket.on('connect', () => { 
+  console.log('Socket connected');
+  socket.emit('join', {ticket_id: ticketId}); 
+});
+socket.on('error', (e) => console.error('Socket error:', e));
+socket.on('connect_error', (e) => console.error('Connect error:', e));
+socket.on('disconnect', (r) => console.log('Disconnected:', r));
+socket.on('message:new', (m) => appendMessage(m));
+
+sendBtn.onclick = async () => {
+  const text = msgInput.value.trim();
+  if(!text) return;
+  msgInput.value = '';
+  
+  // Пробуем через WebSocket
+  if(socket && socket.connected) {
+    console.log('Sending via WebSocket');
+    socket.emit('message:send', {ticket_id: ticketId, text});
+  } else {
+    // Fallback на REST API
+    console.log('WebSocket not connected, using REST API');
+    try {
+      const resp = await fetch(`/api/helpdesk/tickets/${ticketId}/messages`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({text})
+      });
+      if(resp.ok) {
+        const data = await resp.json();
+        if(data.message) appendMessage(data.message);
+      } else {
+        console.error('Failed to send:', resp.status);
+      }
+    } catch(e) {
+      console.error('Failed to send:', e);
+    }
+  }
+};
+
+msgInput.addEventListener('keypress', (e) => {
+  if(e.key === 'Enter') sendBtn.click();
+});
+
+// Отметка сообщений как прочитанных при открытии чата
+document.addEventListener('DOMContentLoaded', function() {
+  fetch(`/api/helpdesk/tickets/${ticketId}/read`, {
+    method: 'POST',
+    credentials: 'include'
+  }).then(r => r.json()).then(data => {
+    console.log('Marked as read:', data);
+  }).catch(e => console.error('Failed to mark as read:', e));
+});
+</script>
+{% endblock %}
