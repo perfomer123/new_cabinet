@@ -43,6 +43,15 @@ def on_join(data):
     if not ticket:
         return
     # Access check: owner or admin
+    
+    # Если это администратор, отмечаем все сообщения от пользователя как прочитанные
+    if role == 'admin':
+        SupportMessage.query.filter_by(
+            ticket_id=ticket_id,
+            author_type='user',
+            read_by_admin=False
+        ).update({'read_by_admin': True})
+        db.session.commit()
     if not (role == 'admin' or (ticket.user_id and ticket.user_id == user_id)):
         return
     room = f'ticket:{ticket_id}'

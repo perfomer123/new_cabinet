@@ -825,6 +825,15 @@ def helpdesk_chat(ticket_id):
     ticket = SupportTicket.query.get_or_404(ticket_id)
     messages = SupportMessage.query.filter_by(ticket_id=ticket_id).order_by(SupportMessage.id.asc()).all()
     
+    
+    # Отмечаем все сообщения от пользователя как прочитанные администратором
+    from app import db
+    SupportMessage.query.filter_by(
+        ticket_id=ticket_id,
+        author_type='user',
+        read_by_admin=False
+    ).update({'read_by_admin': True})
+    db.session.commit()
     # Получаем данные пользователя и ключа из внешней БД
     user_data = {}
     ext_user_id = None
