@@ -87,3 +87,49 @@ def on_message_send(data):
     print(f"[WS Admin] Emitting message to room ticket:{ticket_id}")
 
 # Register the namespace with socketio
+
+@socketio.on('tickets:list', namespace=NAMESPACE)
+def on_tickets_list(data):
+    print(f"[WS Admin] tickets:list received from client")
+    """Подписка на обновления списка тикетов"""
+    payload = _auth_from_token()
+    if not payload:
+        return False
+    
+    join_room('tickets_updates')
+    emit('tickets:subscribed', {'status': 'ok'})
+    print('[WS Admin] Client subscribed to ticket updates')
+
+def broadcast_ticket_update(ticket_id, update_type='new_message'):
+    """Отправка обновления о тикете всем подписчикам"""
+    print(f"[DEBUG] broadcast_ticket_update called for ticket {ticket_id}")
+    ticket = SupportTicket.query.get(ticket_id)
+    if ticket:
+        # Получаем последнее сообщение
+        last_msg = SupportMessage.query.filter_by(ticket_id=ticket_id).order_by(SupportMessage.id.desc()).first()
+        
+        # Считаем непрочитанные сообщения от пользователя
+        unread_count = SupportMessage.query.filter_by(
+            ticket_id=ticket_id,
+            author_type='user',
+            read_by_admin=False
+        ).count()
+        
+        update_data = {
+            'ticket_id': ticket_id,
+            'type': update_type,
+            'ticket': {
+                'id': ticket.id,
+                'subject': ticket.subject,
+                'status': ticket.status,
+                'created_at': ticket.created_at.isoformat() if ticket.created_at else None,
+                'last_message': last_msg.text if last_msg else None,
+                'last_message_at': last_msg.created_at.isoformat() if last_msg and last_msg.created_at else None
+            },
+            'unread_count': unread_count
+        }
+        socketio.emit('tickets:update', update_data, 
+                     room='tickets_updates', 
+                     namespace=NAMESPACE)
+        print(f'[WS Admin] Broadcast ticket update for ticket {ticket_id}, unread: {unread_count}')
+        print(f'[WS Admin] Broadcast ticket update for ticket {ticket_id}')

@@ -402,180 +402,6 @@
     "level": "info"
   },
   {
-    "timestamp": "2025-08-26 21:01:51",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 21:25:14",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 21:49:25",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 21:50:15",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 21:50:28",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 21:51:00",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 21:51:52",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 23:27:42",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 23:37:24",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 23:38:07",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 23:47:49",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 23:49:13",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 23:49:49",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-26 23:50:07",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 00:17:36",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 00:19:10",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 00:25:00",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 00:44:05",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 00:48:42",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 00:53:58",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 00:55:49",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 01:10:28",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 01:11:47",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 09:20:58",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 09:51:42",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 09:54:26",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 09:56:26",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Автозадание запущено по расписанию 10:0",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 10:00:00",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Запуск расчета метрик и отправки отчета",
-    "level": "info"
-  },
-  {
-    "timestamp": "2025-08-27 10:00:00",
-    "job_id": "calculate_metrics_and_send",
-    "message": "Запуск расчета метрик и отправки отчета",
-    "level": "info"
-  },
-  {
     "timestamp": "2025-08-27 10:00:00",
     "job_id": "calculate_metrics_and_send",
     "message": "Запуск расчета метрик и отправки отчета",
@@ -997,6 +823,180 @@
   },
   {
     "timestamp": "2025-08-28 10:58:30",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 11:28:26",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 11:38:35",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 11:42:42",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 11:44:03",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 11:45:15",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 11:47:40",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:02:56",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:04:16",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:10:45",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:15:38",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:19:35",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:28:27",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:31:44",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:34:05",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:37:51",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:42:36",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:46:00",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:52:09",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:55:41",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 12:57:20",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 13:02:27",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 13:09:07",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 13:28:22",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 13:30:25",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 13:38:21",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 13:46:47",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 13:52:30",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 13:57:46",
+    "job_id": "calculate_metrics_and_send",
+    "message": "Автозадание запущено по расписанию 10:0",
+    "level": "info"
+  },
+  {
+    "timestamp": "2025-08-28 13:59:24",
     "job_id": "calculate_metrics_and_send",
     "message": "Автозадание запущено по расписанию 10:0",
     "level": "info"

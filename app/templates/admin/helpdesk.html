@@ -28,7 +28,7 @@
           </thead>
           <tbody>
             {% for t in (tickets_ext or []) %}
-            <tr>
+            <tr data-ticket-id="{{ t.id }}">
               <td>{{ t.id }}</td>
               <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else '' }}</td>
               <td>
@@ -68,7 +68,7 @@
               </td>
             </tr>
             {% else %}
-            <tr>
+            <tr data-ticket-id="{{ t.id }}">
               <td colspan="9" class="text-center p-4">Пока нет обращений</td>
             </tr>
             {% endfor %}
@@ -78,4 +78,83 @@
     </div>
   </div>
 </div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+// WebSocket для обновления списка в реальном времени
+(function() {
+    const token = (document.cookie.match(/(?:^|; )token=([^;]+)/)||[])[1] || '';
+    const socket = io('/helpdesk', {
+        transports: ['websocket', 'polling'],
+        query: {token}
+    });
+    
+    socket.on('connect', () => {
+        console.log('Connected to helpdesk updates');
+        socket.emit('tickets:list', {});
+    });
+    
+    socket.on('tickets:update', (data) => {
+        console.log('Ticket update:', data);
+        
+        const ticketId = data.ticket_id;
+        const row = document.querySelector('tr[data-ticket-id="' + ticketId + '"]');
+        
+        if (data.type === 'new_ticket') {
+            // Новый тикет - перезагружаем страницу
+            location.reload();
+            return;
+        }
+        
+        if (row) {
+            // Обновляем счетчик непрочитанных
+            let badge = row.querySelector('.badge-danger');
+            if (!badge) {
+                // Создаем badge если его нет
+                const unreadCell = row.querySelector('td:nth-child(6)'); // 6-я колонка - непрочитанные
+                if (unreadCell) {
+                    badge = document.createElement('span');
+                    badge.className = 'badge bg-danger';
+                    unreadCell.innerHTML = '';
+                    unreadCell.appendChild(badge);
+                }
+            }
+            
+            if (badge) {
+                if (data.unread_count && data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            
+            // Обновляем время последнего сообщения
+            const lastMsgTime = row.querySelector('.last-message-time');
+            if (lastMsgTime && data.ticket && data.ticket.last_message_at) {
+                lastMsgTime.textContent = new Date(data.ticket.last_message_at).toLocaleString('ru-RU');
+            }
+            
+            // Перемещаем строку наверх таблицы
+            const tbody = row.parentElement;
+            if (tbody && tbody.firstElementChild !== row) {
+                tbody.insertBefore(row, tbody.firstElementChild);
+            }
+            
+            // Подсвечиваем строку
+            row.style.transition = '';
+            row.style.backgroundColor = '#fffbf0';
+            setTimeout(() => {
+                row.style.transition = 'background-color 2s';
+                row.style.backgroundColor = '';
+            }, 500);
+        }
+    });
+    
+    socket.on('disconnect', () => {
+        console.log('Disconnected from helpdesk updates');
+    });
+})();
+</script>
+
 {% endblock %}

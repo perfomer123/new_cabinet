@@ -355,23 +355,7 @@ def create_support_ticket():
             source='app'
         )
         db.session.add(ticket)
-        db.session.flush()  # Получаем ID тикета
-        
-        # Создаем первое сообщение с телом тикета (непрочитанное для админа)
-        first_msg = SupportMessage(
-            ticket_id=ticket.id,
-            author_id=user_id,
-            author_type='user',
-            text=message,
-            read_by_admin=False,
-            read_by_user=True
-        )
-        db.session.add(first_msg)
         db.session.commit()
-        print(f"[DEBUG API] About to broadcast for ticket {ticket.id}")
-        # Отправляем уведомление о новом тикете через WebSocket
-        from app.ws_helpdesk import broadcast_ticket_update
-        broadcast_ticket_update(ticket.id, update_type="new_ticket")
 
         return jsonify({'status': 'success', 'ticket_id': ticket.id}), 201
     except Exception as e:
@@ -393,7 +377,15 @@ def get_ticket_messages(ticket_id):
         if after_id:
             q = q.filter(SupportMessage.id > after_id)
         msgs = q.order_by(SupportMessage.id.asc()).all()
-        return jsonify({"status": "success", "messages": [m.to_dict() for m in msgs]})
+        # Добавляем первое сообщение с телом тикета
+        first_msg = {
+            "id": 0,
+            "author_type": "user",
+            "text": t.message,
+            "created_at": t.created_at.isoformat() if t.created_at else None
+        }
+        messages_list = [first_msg] + [m.to_dict() for m in msgs]
+        return jsonify({"status": "success", "messages": messages_list})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
@@ -436,9 +428,17 @@ def get_ticket_messages_mobile(ticket_id):
         # Получаем все сообщения тикета
         msgs = SupportMessage.query.filter_by(ticket_id=ticket_id).order_by(SupportMessage.id.asc()).all()
         
+        # Добавляем первое сообщение с текстом тикета
+        messages = [{
+            'id': 0,
+            'author_type': 'user', 
+            'text': t.message,
+            'created_at': t.created_at.isoformat() if t.created_at else None,
+            'read_by_admin': False
+        }]
         
         # Добавляем остальные сообщения
-        messages = ([{
+        messages.extend([{
             'id': m.id,
             'author_type': m.author_type,
             'text': m.text,
@@ -475,9 +475,6 @@ def post_ticket_message_mobile(ticket_id):
         msg_dict = m.to_dict()
         socketio.emit("message:new", msg_dict, room=f"ticket:{ticket_id}", namespace="/helpdesk_mobile")
         socketio.emit("message:new", msg_dict, room=f"ticket:{ticket_id}", namespace="/helpdesk")
-        # Обновляем список тикетов в админке
-        from app.ws_helpdesk import broadcast_ticket_update
-        broadcast_ticket_update(ticket_id)
         
         # Обновляем статус тикета если нужно
         if t.status == 'closed':

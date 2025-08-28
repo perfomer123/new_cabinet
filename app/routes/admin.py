@@ -820,7 +820,65 @@ def helpdesk_list():
 def helpdesk_chat(ticket_id):
     from app.models.support_ticket import SupportTicket
     from app.models.support_message import SupportMessage
+    import sqlite3
+    
     ticket = SupportTicket.query.get_or_404(ticket_id)
     messages = SupportMessage.query.filter_by(ticket_id=ticket_id).order_by(SupportMessage.id.asc()).all()
-    return render_template('admin/helpdesk_chat.html', ticket=ticket, messages=messages)
+    
+    # Получаем данные пользователя и ключа из внешней БД
+    user_data = {}
+    ext_user_id = None
+    identifier = None
+    
+    if ticket.user_id:
+        try:
+            ext_conn = sqlite3.connect('/root/miner-data/file.db')
+            ext_cur = ext_conn.cursor()
+            
+            # Получаем ключ
+            ext_cur.execute('''
+                SELECT uk.key 
+                FROM user_keys uk 
+                WHERE uk.user_id = ?
+                LIMIT 1
+            ''', (ticket.user_id,))
+            row = ext_cur.fetchone()
+            if row:
+                user_data['key'] = row[0]
+                
+            # Получаем данные пользователя для identifier
+            ext_cur.execute('''
+                SELECT id, email, phone_number, telegram_id
+                FROM users 
+                WHERE id = ?
+                LIMIT 1
+            ''', (ticket.user_id,))
+            row = ext_cur.fetchone()
+            if row:
+                ext_user_id = row[0]
+                email = row[1]
+                phone = row[2]
+                telegram = row[3]
+                
+                # Формируем identifier: email -> phone -> telegram
+                for v in (email, phone, telegram):
+                    if v:
+                        identifier = str(v)
+                        break
+                        
+            ext_conn.close()
+        except Exception as e:
+            print(f'Failed to get user data: {e}')
+    
+    # Если ключа нет в user_data, используем key_value из тикета
+    if not user_data.get('key') and ticket.key_value:
+        user_data['key'] = ticket.key_value
+    
+    user_data['identifier'] = identifier
+    user_data['ext_user_id'] = ext_user_id
+    
+    return render_template('admin/helpdesk_chat.html', 
+                         ticket=ticket, 
+                         messages=messages,
+                         user_data=user_data)
 

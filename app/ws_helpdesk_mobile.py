@@ -104,6 +104,10 @@ def on_message_send_mobile(data):
         # Также отправляем в основной namespace для админов
         socketio.emit("message:new", msg.to_dict(), room=room, namespace="/helpdesk")
         
+        # Обновляем список тикетов в админке
+        from app.ws_helpdesk import broadcast_ticket_update
+        broadcast_ticket_update(ticket_id)
+        
         print(f'[WS Mobile] Message sent to room {room}: {text[:50]}')
         
     except Exception as e:
